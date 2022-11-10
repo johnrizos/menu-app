@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="./css/main.css" />
+  </head>
+  <body>
+    <noscript>
+      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
+
+
+    
+    
+    <script>
+          var data=[
+              {"headline":"Salads - Appetizers",
+              "sub_headline":"Salads - Appetizers",
+                "image":"salad.png"  
+            },
+              {"headline":"Seafood",
+              "sub_headline":"Fresh fishes",
+              "image":"fish.png"  
+                },
+              {"headline":"Meat",
+              "sub_headline":"Everything on the coals",
+              "image":"meat.png"  
+            },
+              {"headline":"Various meals",
+              "sub_headline":"Meals",
+              "image":"chef.png"  
+
+            },
+              {"headline":"Wines",
+              "sub_headline":"Wines",
+              "image":"wine-bottle.png"  
+            },
+              {"headline":"Cocktails",
+              "sub_headline":"Cocktails",
+              "image":"mai-thai.png"  
+            },
+              {"headline":"Drinks",
+              "sub_headline":"drinks",
+              "image":"drink.png"  
+            },
+              {"headline":"Coffee and Beverages",
+              "sub_headline":"drinks",
+              "image":"coffee.png"  
+            }
+      ]
+      
+      function add_card(data){
+        let headline = data["headline"];
+        let sub_headline = data["sub_headline"];
+        let image = data["image"];
+
+        return `          <div class="col-md-6 pb-4 py-0" style="cursor: pointer">
+              <div class="card">
+                <div class="card-body p-0">
+                  <div class="d-flex flex-row align-items-center">
+                    <div class="flex-grow-1 flex-shrink-1 p-3">
+                      <div class="card-title text-dark font-weight-bolder h4 mb-1">
+                        ${headline}
+                      </div>
+                      <div class="text-dark-75">${sub_headline}</div>
+                    </div>
+                    <div class="flex-grow-3 flex-shrink-0">
+                      <div
+                        class="symbol symbol-120 d-block image-no-svg p-2"
+                        style="background-color: rgb(53, 173, 206)"
+                      >
+                      <img style="max-height:120px;max-width:120px;width:100%;height:100%" height="120" width="120" src="./images/${image}">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>`;
+          }
+// images link
+            final_text="";
+            for (let i = 0; i < data.length; i++) {
+              final_text += add_card(data[i]);
+            }
+            document.querySelector("body > section > div > div").innerHTML=final_text;
+            console.log(final_text);
+    </script>
+        <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"
+      ></script>
+  </body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="./css/main.css" />
+  </head>
+
+</html>
+
