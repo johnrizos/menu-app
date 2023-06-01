@@ -14,7 +14,7 @@
                                         <!---->
                                         <div 
                                             class="text-dark-75 label label-inline d-inline label-rounded label-xl">
-                                            {{product.price}}
+                                            {{product.price}} €
                                         </div>
                                     </div>
                                     <div class="flex-grow-3 flex-shrink-0 image">

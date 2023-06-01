@@ -22,7 +22,8 @@
                     <single-category-section v-for="category in subCategories" :category="category" :key="category.id">
                     </single-category-section>
                 </div>
-                <div v-else class="text-center"><h2>Δεν υπάρχουν υποκατηγορίες</h2></div>
+
+                <div v-else class="text-center"><h2>{{ errorMessage }}</h2></div>
                 <!-- <single-category-section  :category="categories"  ></single-category-section> -->
 
 
@@ -44,7 +45,8 @@ export default {
     data() {
         return {
             categoryId: "",
-            subCategories: {}
+            subCategories: {},
+            errorMessage:""
 
         }
     },
@@ -70,7 +72,10 @@ export default {
                     console.log("results", results);
                     this.subCategories = results;
                     console.log("this.subCategories", this.subCategories);
-
+                    if(this.subCategories.length <= 0){
+                        // log.error("subCategories",this.subCategories)
+                        this.errorMessage = "Δεν υπάρχουν κατηγορίες";
+                    }
                     // this.displayCategories = true;
 
                 })

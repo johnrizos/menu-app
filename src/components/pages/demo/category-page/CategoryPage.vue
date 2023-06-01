@@ -3,10 +3,10 @@
     <section class="pt-5" style="background-color: #F2F3F7;">
         <div class="container">
             <div class="row">
-                <div v-for="category in categories" :key="category.category_id" class="col-md-6 pb-4 py-0"
+                <div v-for="page in categories" :key="page.category_id" class="col-md-6 pb-4 py-0"
                     style="cursor: pointer">
-                    <category-card :key="category.category_id" :id="category.category_id" :headline="category.category_name"
-                        :sub_headline="category.category_description" :image="category.image ? category.image:'../../../assets/demo/default/fallback.jpg'"></category-card>
+                    <category-card :key="page.page_id" :id="page.page_id" :headline="page.page_name"
+                        :sub_headline="page.page_description" :image="page.image ? page.image:'../../../assets/demo/default/fallback.jpg'"></category-card>
                 </div>
 
             </div>
@@ -30,13 +30,13 @@ export default {
     },
     methods: {
         showCategories() {
-            fetch(`${this.api_url}ajax/get/show-categories.php`, {
+            fetch(`${this.api_url}ajax/get/show-pages.php`, {
     })
                 .then((response) => response.json())
                 .then((data) => {
                     const results = [];
                     for (const id in data) {
-                        results.push({ category_id: data[id].category_id, magazi_id: data[id].magazi_id, category_name: data[id].category_name, category_description: data[id].category_description, date_created: data[id].date_created })
+                        results.push({ page_id: data[id].page_id, magazi_id: data[id].magazi_id, page_name: data[id].page_name, page_description: data[id].page_description, date_created: data[id].date_created })
                     }
                     console.log("results", results);
                     this.categories = results;
