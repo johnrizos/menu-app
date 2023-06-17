@@ -1,25 +1,22 @@
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 import App from "./App.vue";
-import HomePage from "./components/pages/home-page/HomePage.vue";
-import CategoryPage from "./components/pages/demo/category-page/CategoryPage.vue";
-import SingleCategoryPage from "./components/pages/demo/single-category/SingleCategoryPage.vue";
+import router from "./router/index.js";
 
-const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    { path: "/", component: HomePage },
-    { path: "/category", component: CategoryPage },
-    { path: "/category/:id", component: SingleCategoryPage },
+import "bootstrap/dist/css/bootstrap.css";
 
+/* import the fontawesome core */
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { fas } from "@fortawesome/free-solid-svg-icons";
 
-
-
-  ],
-});
+library.add(fas)
+/* import font awesome icon component */
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 const app = createApp(App);
 
 app.use(router)
+app.component('font-awesome-icon', FontAwesomeIcon);
 
 app.mount("#app");
+import "bootstrap/dist/js/bootstrap.js";

@@ -1,3 +1,11 @@
+<script setup>
+import { inject } from 'vue'
+import SingleProductCard from './SingleProductCard.vue'
+const props = defineProps(["category"]);
+const api_url = inject('api_url');
+const images_url =inject('images_url');
+</script>
+
 <template>
     <div class="card bg-transparent">
         <section class="card-body bg-info p-0">
@@ -21,8 +29,8 @@
                 </div>
             </div>
         </section>
-        <single-category-card v-for="product in category.products" :product="product" :key="product.id">
-        </single-category-card>
+        <single-product-card v-for="product in category.products" :product="product" :key="product.id">
+        </single-product-card>
         <!-- <div data-v-75adc2ff="">
             
 
@@ -30,20 +38,7 @@
     </div>
 </template>
 
-<script>
-import SingleCategoryCard from './SingleCategoryCard.vue'
-export default {
-    components: {
-        SingleCategoryCard
-    },
-    props: ["category"],
-    inject:["api_url","images_url"],
 
-    created() {
-        // console.log("category=",this.category);
-    }
-}
-</script>
 
 <style>
 

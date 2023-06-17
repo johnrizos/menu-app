@@ -1,3 +1,15 @@
+
+<script setup>
+import { inject } from 'vue'
+// Props
+const api_url = inject('api_url');
+const images_url =inject('images_url');
+const props = defineProps(["product"]);
+
+// Created
+console.log("product.prices=",props.product);
+</script>
+
 <template>
   <div class="card">
                             <!---->
@@ -25,22 +37,14 @@
                                             <!---->
                                         </div>
                                     </div>
+                                    <div class="p-1 m-1" style="background:rgba(128, 128, 128, 0.757);width:30px;position: absolute;bottom:0;right:0"><font-awesome-icon style="color:black" icon="fa-solid fa-plus" /></div>
+                                    
                                 </div>
                             </div>
                         </div>
 </template>
 
-<script>
-export default {
-    props:["product"],
-    inject:["api_url","images_url"],
 
-    created(){
-        console.log("product.prices=",this.product);
-    }  
-
-}
-</script>
 
 <style scoped>
 .label {

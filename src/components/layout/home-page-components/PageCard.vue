@@ -21,10 +21,9 @@
   </router-link>
 </template>
 
-<script>
-export default {
-  props: ["id", "headline", "sub_headline", "image"]
-}
+<script setup>
+
+const props = defineProps(["id", "headline", "sub_headline", "image"]);
 </script>
 
 <style scoped>
