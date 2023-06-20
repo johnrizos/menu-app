@@ -1,7 +1,9 @@
-<script setup>
-import { ref,provide  } from 'vue';
+<template>
+    <router-view></router-view>
+</template>
 
-const display = ref('false');
+<script>
+
 function isLocalhost(url) {
   return url.includes('localhost') || url.includes('127.0.0.1');
 }
@@ -16,18 +18,24 @@ if (is_local_host) {
   images_url = "http://localhost/menu/api/images/"
 }
 
-provide('api_url', api_url)
-provide('images_url', images_url)
-
 // api_url = "https://api.trick.gr/";
 
+export default {
+    name: 'App',
+    components: {
+    },
+    provide: {
+        api_url: api_url,
+        images_url: images_url
+
+    },
+    data() {
+        return {
+            display: false
+        }
+    }
+}
 </script>
-
-<template>
-  <router-view></router-view>
-</template>
-
-
 
 
 
