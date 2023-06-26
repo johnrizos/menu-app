@@ -6,11 +6,64 @@ import SingleCategorySection from '../components/layout/category-page-components
 import { reactive, ref, computed, onBeforeMount, inject, watch } from 'vue';
 import { useRoute } from 'vue-router'
 
+import ProductModal from '@/components/layout/product-modal/ProductModal.vue';
 
+
+const api_url = inject('api_url');
+const images_url = inject('images_url');
+
+const products = ref([]);
+const vueModal = ref(false);
+
+const hideUnhide = ()=>{
+
+}
+
+const productModalOpenOrClosed = ()=>{
+    console.log("productModalOpenOrClosed works");
+    vueModal.value = !vueModal.value;
+    document.body.classList.toggle('modal-open'); // Add or remove class
+}
+
+
+// test
+// const product = reactive({
+//     product_id: 1,
+//     title: "Ελληνικός μονός",
+//     description: "O Ελληνικός καφές είναι είδος καφέ που παρασκευάζεται με ψήσιμο, σε μπρίκι, αλεσμένων σε λεπτή σκόνη καβουρντισμένων κόκκων καφέ και ο οποίος πίνεται περισσότερο από κάθε άλλο είδος καφέ σε πολλές περιοχές της ανατολικής Μεσογείου, της Μέσης Ανατολής, των Βαλκανίων και της Βόρειας Αφρικής.O Ελληνικός καφές είναι είδος καφέ που παρασκευάζεται με ψήσιμο, σε μπρίκι, αλεσμένων σε λεπτή σκόνη καβουρντισμένων κόκκων καφέ και ο οποίος πίνεται περισσότερο από κάθε άλλο είδος καφέ σε πολλές περιοχές της ανατολικής Μεσογείου, της Μέσης Ανατολής, των Βαλκανίων και της Βόρειας ΑφρικήςO Ελληνικός καφές είναι είδος καφέ που παρασκευάζεται με ψήσιμο, σε μπρίκι, αλεσμένων σε λεπτή σκόνη καβουρντισμένων κόκκων καφέ και ο οποίος πίνεται περισσότερο από κάθε άλλο είδος καφέ σε πολλές περιοχές της ανατολικής Μεσογείου, της Μέσης Ανατολής, των Βαλκανίων και της Βόρειας ΑφρικήςO Ελληνικός καφές είναι είδος καφέ που παρασκευάζεται με ψήσιμο, σε μπρίκι, αλεσμένων σε λεπτή σκόνη καβουρντισμένων κόκκων καφέ και ο οποίος πίνεται περισσότερο από κάθε άλλο είδος καφέ σε πολλές περιοχές της ανατολικής Μεσογείου, της Μέσης Ανατολής, των Βαλκανίων και της Βόρειας ΑφρικήςO Ελληνικός καφές είναι είδος καφέ που παρασκευάζεται με ψήσιμο, σε μπρίκι, αλεσμένων σε λεπτή σκόνη καβουρντισμένων κόκκων καφέ και ο οποίος πίνεται περισσότερο από κάθε άλλο είδος καφέ σε πολλές περιοχές της ανατολικής Μεσογείου, της Μέσης Ανατολής, των Βαλκανίων και της Βόρειας Αφρικής",
+//     img_url: "http://localhost/menu/api/images/products/6475b39226d34951cb70767239394d2208f47a5995d38.jpg",
+//     price: "1,75",
+//     quantity:1
+// })
+
+const productModal = reactive({
+    product_id: null,
+    title: "",
+    description: "",
+    img_url: "",
+    price: "",
+    quantity:1
+})
+// v-if="product.img" :src="images_url + 'products/' + product.img"
+const updateProductModal =(id)=>{
+console.log("updateProductModal works");
+const result = products.value.filter(product => product.product_id == id);
+
+console.log("result=",result[0]);
+    productModal.product_id = result[0].product_id
+    productModal.title = result[0].product_name
+    productModal.description = result[0].product_description
+    if( result[0].product_image_url){
+        productModal.img_url = images_url + 'products/'+ result[0].product_image_url
+    }
+    productModal.price = result[0].price
+
+// productModal
+// Expected output: Array ["exuberant", "destruction", "present"]
+}
 
 // Data
 const route = useRoute();
-const api_url = inject("api_url")
 
 const categoryId = ref('');
 let subCategories = ref({});
@@ -56,6 +109,28 @@ const randomId = computed(() => {
         }
 };
 
+const getProducts = (()=> {
+               fetch(api_url + 'ajax/get/show-products.php')
+                .then((response) => response.json())
+                .then((data) => {
+                    const results = data;
+                    console.log("results", results);
+                    products.value = results;
+                    console.log("products", products);
+                    if(products.value.length <= 0){
+                        console.log("products <= 0");
+
+                        // errorMessage = "Δεν υπάρχουν κατηγορίες";
+                    }
+                    // this.displayCategories = true;
+
+                })
+                .catch((error) => {
+                    console.error('There has been a problem with your fetch operation:', error);
+                });
+        
+});
+
 
 
 // Created
@@ -66,6 +141,7 @@ onBeforeMount(() => {
     console.log("categoryId: " + categoryId.value);
     getSingleCategoryData(categoryId.value);
     console.log("subCategories.length = ", subCategories.length);
+    getProducts();
 
 }
 );
@@ -94,7 +170,7 @@ onBeforeMount(() => {
                 <!-- section here -->
  
                 <div v-if="(subCategories.length > 0 || Object.keys(subCategories).length > 0)">
-                    <single-category-section v-for="category in subCategories" :category="category" :key="category.id">
+                    <single-category-section v-for="category in subCategories" :category="category" :key="category.id" :productModalOpenOrClosed="productModalOpenOrClosed" :updateProductModal="updateProductModal">
                     </single-category-section>
                 </div>
 
@@ -108,6 +184,9 @@ onBeforeMount(() => {
             <!---->
         </div>
     </div>
+    <product-modal v-if="vueModal" :product_id="productModal.product_id" :title="productModal.title" :description="productModal.description"
+        :img_url="productModal.img_url" :price="productModal.price" :addToTheCard="addToTheCard" :productModalOpenOrClosed="productModalOpenOrClosed"
+        ></product-modal>
     <footer-category></footer-category>
 </template>
 

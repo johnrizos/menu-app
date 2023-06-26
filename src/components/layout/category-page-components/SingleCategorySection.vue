@@ -1,7 +1,14 @@
 <script setup>
 import { inject } from 'vue'
 import SingleProductCard from './SingleProductCard.vue'
-const props = defineProps(["category"]);
+const props = defineProps(
+    {
+        category:Array,
+        productModalOpenOrClosed: Function,
+        updateProductModal: Function,
+
+    }
+    );
 const api_url = inject('api_url');
 const images_url =inject('images_url');
 </script>
@@ -29,7 +36,7 @@ const images_url =inject('images_url');
                 </div>
             </div>
         </section>
-        <single-product-card v-for="product in category.products" :product="product" :key="product.id">
+        <single-product-card :productModalOpenOrClosed="productModalOpenOrClosed" v-for="product in category.products" :product="product" :key="product.id" :updateProductModal="updateProductModal">
         </single-product-card>
         <!-- <div data-v-75adc2ff="">
             
