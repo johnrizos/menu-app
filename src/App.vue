@@ -1,6 +1,6 @@
 <script setup>
-import { ref,provide  } from 'vue';
-
+import { ref, provide } from 'vue';
+import FooterSection from './components/layout/FooterSection.vue';
 const display = ref('false');
 function isLocalhost(url) {
   return url.includes('localhost') || url.includes('127.0.0.1');
@@ -24,14 +24,32 @@ provide('images_url', images_url)
 </script>
 
 <template>
-  <router-view></router-view>
+  <div class="wrapper">
+    <!-- main -->
+    <div class="content pb-1">
+      <router-view></router-view>
+    </div>
+    <!-- end of main -->
+    <div class="footer">
+      <footer-section></footer-section>
+    </div>
+  </div>
 </template>
 
 
 
 
 
-<style>
+<style >
+html,
+body {
+  height: 100%;
+}
+
+.content{
+  background-color: #F2F3F7;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -48,5 +66,15 @@ header {
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1;
 }
 </style>

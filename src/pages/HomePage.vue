@@ -1,5 +1,5 @@
 <script setup>
-import FooterCategory from '../components/layout/FooterCategory.vue';
+// import FooterCategory from '../components/layout/FooterCategory.vue';
 import HeaderCategory from '../components/layout/HeaderCategory.vue';
 import PageCard from '../components/layout/home-page-components/PageCard.vue';
 import { reactive, onBeforeMount,inject,ref  } from 'vue';
@@ -49,7 +49,7 @@ onBeforeMount(()=>{
 
 <template>
     <header-category></header-category>
-    <section class="pt-5" style="background-color: #F2F3F7;">
+    <section class="pt-5" >
         <div class="container">
             <div class="row">
                 <div v-for="page in categories" :key="page.category_id" class="col-md-6 pb-4 py-0"
@@ -63,7 +63,7 @@ onBeforeMount(()=>{
             <!-- end of row-->
         </div>
     </section>
-    <footer-category></footer-category>
+    <!-- <footer-category></footer-category> -->
 </template>
 
 

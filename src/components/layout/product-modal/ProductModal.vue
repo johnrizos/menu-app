@@ -14,13 +14,13 @@ const props = defineProps({
 // modal
 const parentDiv = ref(null);
 const handleParentClick = (event) => {
-      // Check if the clicked element is the parent div
-      if (event.target === parentDiv.value) {
+    // Check if the clicked element is the parent div
+    if (event.target === parentDiv.value) {
         // Your script logic here
         props.productModalOpenOrClosed();
         console.log('Parent div clicked');
-      }
-    };
+    }
+};
 
 // view more
 const isExpanded = ref(false);
@@ -28,9 +28,9 @@ const showButton = ref(false);
 const contentRef = ref(null);
 
 const checkContentHeight = () => {
-    if(contentRef.value){
+    if (contentRef.value) {
 
-        console.log("contentRef.value.scrollHeight > contentRef.value.clientHeight",`${contentRef.value.scrollHeight} > ${contentRef.value.clientHeight}`);
+        console.log("contentRef.value.scrollHeight > contentRef.value.clientHeight", `${contentRef.value.scrollHeight} > ${contentRef.value.clientHeight}`);
         if (contentRef.value.scrollHeight > contentRef.value.clientHeight) {
             showButton.value = true;
         }
@@ -93,13 +93,15 @@ const addToBasket = () => {
 
 </script>
 <template>
-    <div ref="parentDiv" @click="handleParentClick" class="modal d-block " id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel">
+    <div ref="parentDiv" @click="handleParentClick" class="modal d-block " id="exampleModal" tabindex="-1"
+        aria-labelledby="exampleModalLabel">
         <div class="modal-dialog m-auto modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
             <div class="modal-content position-relative" style="background-color:rgb(247, 247, 247)">
-            <!-- header -->
+                <!-- header -->
                 <div class="modal-header p-0 position-sticky top-0 end-0 " style="z-index:1">
 
-                    <div @click="productModalOpenOrClosed" class="close "><font-awesome-icon icon="fa-solid fa-xmark" /></div>
+                    <div @click="productModalOpenOrClosed" class="close "><font-awesome-icon icon="fa-solid fa-xmark" />
+                    </div>
 
 
                 </div>
@@ -108,15 +110,15 @@ const addToBasket = () => {
                     <div class="card">
                         <img v-if="props.img_url" :src="props.img_url" class="card-img-top" alt="...">
                         <div class="card-body">
-                            <h5 class="card-title fw-bold text-start ">{{ props.title }}</h5>
-                            <p ref="contentRef" v-if="props.description" class="card-text text-start pb-0 mb-0 description " 
-                                old-class="hideExtraTextInDescription ? 'limitDescriptionCharacters pb-0 mb-0' : ''"
-                                :class="{ 'expanded pb-0 mb-0': isExpanded }"
-                                style="color:rgb(155, 155, 155)">{{
-                                    props.description }}</p>
-                            <p v-if="showButton" @click="expandContent"
-                                class="text-start fw-bold learn-more pb-0 mb-0">Μάθε περισσότερα</p>
-
+                            <h5 v-if="props.title" class="card-title fw-bold text-start ">{{ props.title }}</h5>
+                            <div v-if="props.description">
+                                <p ref="contentRef" class="card-text text-start pb-0 mb-0 description "
+                                    old-class="hideExtraTextInDescription ? 'limitDescriptionCharacters pb-0 mb-0' : ''"
+                                    :class="{ 'expanded pb-0 mb-0': isExpanded }" style="color:rgb(155, 155, 155)">{{
+                                        props.description }}</p>
+                                <p v-if="showButton" @click="expandContent" class="text-start fw-bold learn-more pb-0 mb-0">
+                                    Μάθε περισσότερα</p>
+                            </div>
                             <p v-if="totalProductPrice" class="text-start fw-bold m-1">{{ totalProductPrice }}€</p>
 
                         </div>
@@ -139,7 +141,8 @@ const addToBasket = () => {
                                 </div>
                             </div>
                             <div class="col-6">
-                                <button class="btn btn-success btn-sm add">Προσθήκη <b v-if="totalProductPrice">{{ totalProductPrice }}€</b></button>
+                                <button class="btn btn-success btn-sm add">Προσθήκη <b v-if="totalProductPrice">{{
+                                    totalProductPrice }}€</b></button>
 
                             </div>
 
@@ -156,12 +159,12 @@ const addToBasket = () => {
 <style scoped>
 /* view more */
 .description {
-  max-height: 3em;
-  overflow: hidden;
+    max-height: 3em;
+    overflow: hidden;
 }
 
 .description.expanded {
-  max-height: none;
+    max-height: none;
 }
 
 /* .learn-more {
@@ -169,7 +172,7 @@ const addToBasket = () => {
 } */
 
 .description.expanded button {
-  display: block;
+    display: block;
 }
 
 /* end of view more */

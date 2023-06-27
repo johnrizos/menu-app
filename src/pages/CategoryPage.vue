@@ -1,6 +1,6 @@
 <script setup>
 // import { json } from 'body-parser';
-import FooterCategory from '../components/layout/FooterCategory.vue';
+// import FooterCategory from '../components/layout/FooterCategory.vue';
 import HeaderCategory from '../components/layout/HeaderCategory.vue';
 import SingleCategorySection from '../components/layout/category-page-components/SingleCategorySection.vue'
 import { reactive, ref, computed, onBeforeMount, inject, watch } from 'vue';
@@ -44,9 +44,18 @@ const productModal = reactive({
     price: "",
     quantity:1
 })
+const initializeProductModal =()=>{
+    productModal.product_id = null,
+    productModal.title = "",
+    productModal.description = "",
+    productModal.img_url = "",
+    productModal.price = "",
+    productModal.quantity = 1
+}
 // v-if="product.img" :src="images_url + 'products/' + product.img"
 const updateProductModal =(id)=>{
 console.log("updateProductModal works");
+initializeProductModal();
 const result = products.value.filter(product => product.product_id == id);
 
 console.log("result=",result[0]);
@@ -187,7 +196,7 @@ onBeforeMount(() => {
     <product-modal v-if="vueModal" :product_id="productModal.product_id" :title="productModal.title" :description="productModal.description"
         :img_url="productModal.img_url" :price="productModal.price" :addToTheCard="addToTheCard" :productModalOpenOrClosed="productModalOpenOrClosed"
         ></product-modal>
-    <footer-category></footer-category>
+    <!-- <footer-category></footer-category> -->
 </template>
 
 
