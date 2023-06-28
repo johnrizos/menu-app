@@ -11,43 +11,47 @@ const props = defineProps(
         updateProductModal: Function
     }
 );
+const id = ref(1);
 
 // Created
 console.log("product.prices=", props.product);
 </script>
 
-<template>
-    <div class="card" @click="productModalOpenOrClosed();updateProductModal(product.id)">
-        <!---->
-        <div class="card-body p-2">
-            <div class="d-flex align-items-center justify-content-start singleitem flex-row">
-                <div class="mr-2 flex-grow-1 flex-shrink-1 text-start">
-                    <div class="text-dark font-weight-bold mb-1">
-                        <h5>{{ product.title }}</h5>
-                    </div>
-                    <div v-if="product.description" class="text-dark-75 mb-1">
-                        {{ product.description }}
-                    </div>
-                    <!---->
-                    <div class="text-dark-75 label label-inline d-inline label-rounded label-xl">
-                        {{ product.price }} €
-                    </div>
-                </div>
-                <div class="flex-grow-3 flex-shrink-0 image">
-                    <div class="symbol symbol-100">
-                        <img v-if="product.img" :src="images_url + 'products/' + product.img"
-                            alt="/assets/media/logos/menurio-icon.png" class="lazyload lazyloaded">
-                        <!---->
-                    </div>
-                </div>
-                <div class="p-1 m-1"
-                    style="background:rgba(128, 128, 128, 0.757);width:30px;position: absolute;bottom:0;right:0">
-                    <font-awesome-icon style="color:black" icon="fa-solid fa-plus" />
-                </div>
 
+<template>
+    <router-link :to="'/category/1/modal/' + product.id  ">
+        <div class="card">
+            <!---->
+            <div class="card-body p-2">
+                <div class="d-flex align-items-center justify-content-start singleitem flex-row">
+                    <div class="mr-2 flex-grow-1 flex-shrink-1 text-start">
+                        <div class="text-dark font-weight-bold mb-1">
+                            <h5>{{ product.title }}</h5>
+                        </div>
+                        <div v-if="product.description" class="text-dark-75 mb-1">
+                            {{ product.description }}
+                        </div>
+                        <!---->
+                        <div class="text-dark-75 label label-inline d-inline label-rounded label-xl">
+                            {{ product.price }} €
+                        </div>
+                    </div>
+                    <div class="flex-grow-3 flex-shrink-0 image">
+                        <div class="symbol symbol-100">
+                            <img v-if="product.img" :src="images_url + 'products/' + product.img"
+                                alt="/assets/media/logos/menurio-icon.png" class="lazyload lazyloaded">
+                            <!---->
+                        </div>
+                    </div>
+                    <div class="p-1 m-1"
+                        style="background:rgba(128, 128, 128, 0.757);width:30px;position: absolute;bottom:0;right:0">
+                        <font-awesome-icon style="color:black" icon="fa-solid fa-plus" />
+                    </div>
+
+                </div>
             </div>
         </div>
-    </div>
+    </router-link>
 </template>
 
 

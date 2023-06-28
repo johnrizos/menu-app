@@ -1,3 +1,8 @@
+<script setup>
+
+const props = defineProps(["id", "headline", "sub_headline", "image"]);
+</script>
+
 <template>
   <router-link :to="'/category/' + id">
     <div class="card">
@@ -21,10 +26,7 @@
   </router-link>
 </template>
 
-<script setup>
 
-const props = defineProps(["id", "headline", "sub_headline", "image"]);
-</script>
 
 <style scoped>
 a,a:hover{

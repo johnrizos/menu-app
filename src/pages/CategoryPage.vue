@@ -66,6 +66,7 @@ console.log("result=",result[0]);
         productModal.img_url = images_url + 'products/'+ result[0].product_image_url
     }
     productModal.price = result[0].price
+    productModalOpenOrClosed()
 
 // productModal
 // Expected output: Array ["exuberant", "destruction", "present"]
@@ -75,6 +76,7 @@ console.log("result=",result[0]);
 const route = useRoute();
 
 const categoryId = ref('');
+const productId = ref('');
 let subCategories = ref({});
 const errorMessage = ref('');
 
@@ -145,9 +147,19 @@ const getProducts = (()=> {
 // Created
 onBeforeMount(() => {
 
-
+console.log(" route.params= ", route.params);
     categoryId.value = route.params.id;
     console.log("categoryId: " + categoryId.value);
+    productId.value = route.params.product_id || '';
+
+    // if(productId.value){
+
+    //     console.log("productId: " + productId.value);
+    //     updateProductModal(productId.value)
+    //     vueModal.value = true
+
+    // }
+
     getSingleCategoryData(categoryId.value);
     console.log("subCategories.length = ", subCategories.length);
     getProducts();
@@ -193,9 +205,10 @@ onBeforeMount(() => {
             <!---->
         </div>
     </div>
-    <product-modal v-if="vueModal" :product_id="productModal.product_id" :title="productModal.title" :description="productModal.description"
+    <!-- <product-modal v-if="vueModal" :product_id="productModal.product_id" :title="productModal.title" :description="productModal.description"
         :img_url="productModal.img_url" :price="productModal.price" :addToTheCard="addToTheCard" :productModalOpenOrClosed="productModalOpenOrClosed"
-        ></product-modal>
+        ></product-modal> -->
+        <router-view />
     <!-- <footer-category></footer-category> -->
 </template>
 
