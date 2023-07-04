@@ -1,5 +1,9 @@
 <script setup>
+import { ref } from "vue";
 
+import { useBasketStore } from '../../stores/basket';
+
+const basketStore = useBasketStore();
 </script>
 <template>
     <div class="position-fixed  bottom-0 start-50 translate-middle-x"
@@ -16,9 +20,9 @@
                     <button class="btn btn-warning fw-bold btn-lg" type="button">
                         <div class="d-flex justify-content-between">
                         <div><span
-                        class="badge bg-white text-dark mx-2">4</span></div>
+                        class="badge bg-white text-dark mx-2">{{ basketStore.totalQuantityOfProducts }}</span></div>
                         <div> <font-awesome-icon icon="fa-solid fa-basket-shopping" class="pe-1"/>Καλάθι </div>
-                        <div>10,25€</div>
+                        <div>{{ basketStore.totalPrice }}€</div>
                         
                         </div>
 </button>

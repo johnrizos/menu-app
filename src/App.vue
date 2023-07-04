@@ -1,6 +1,9 @@
 <script setup>
-import { ref, provide } from 'vue';
+import { ref, provide,onBeforeMount } from 'vue';
 import FooterSection from './components/layout/FooterSection.vue';
+import { useBasketStore } from './stores/basket';
+
+
 const display = ref('false');
 function isLocalhost(url) {
   return url.includes('localhost') || url.includes('127.0.0.1');
@@ -21,6 +24,17 @@ provide('images_url', images_url)
 
 // api_url = "https://api.trick.gr/";
 
+
+const  basketStore = useBasketStore();
+onBeforeMount(()=>{
+  console.log("onBeforeMount works");
+console.log("localStorage.getItem() = ",localStorage.getItem("orders"));
+  if (localStorage.getItem("orders") && basketStore.basket.value == null) {
+    console.log("onBeforeMount store basket works");
+        const storedOrder = JSON.parse(localStorage.getItem("orders"));
+        basketStore.basket= storedOrder;
+    }
+});
 </script>
 
 <template>

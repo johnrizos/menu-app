@@ -4,11 +4,13 @@
 import HeaderCategory from '../components/layout/HeaderCategory.vue';
 import SingleCategorySection from '../components/layout/category-page-components/SingleCategorySection.vue'
 import { reactive, ref, computed, onBeforeMount, inject, watch } from 'vue';
-import { useRoute } from 'vue-router'
+import { useRoute } from 'vue-router';
+import BasketCtaSectionFooter from '../components/layout/BasketCtaSectionFooter.vue'
 
 import ProductModal from '@/components/layout/product-modal/ProductModal.vue';
+import { useBasketStore } from '../stores/basket';
 
-
+const basketStore = useBasketStore();
 const api_url = inject('api_url');
 const images_url = inject('images_url');
 
@@ -109,7 +111,7 @@ const randomId = computed(() => {
                     console.log("subCategories", subCategories);
                     if(subCategories.value.length <= 0){
                         // log.error("subCategories",subCategories)
-                        errorMessage = "Δεν υπάρχουν κατηγορίες";
+                        errorMessage.value = "Δεν υπάρχουν κατηγορίες";
                     }
                     // this.displayCategories = true;
 
@@ -210,6 +212,9 @@ console.log(" route.params= ", route.params);
         ></product-modal> -->
         <router-view />
     <!-- <footer-category></footer-category> -->
+
+    <basket-cta-section-footer v-if="basketStore.totalQuantityOfProducts > 0">
+    </basket-cta-section-footer>
 </template>
 
 

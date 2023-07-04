@@ -14,7 +14,7 @@ const routes = [
     component: CategoryPage,
     children:[
       {
-        path: "modal/:product_id",
+        path: "product/:product",
         component: ProductModal,
         props: route => ({...route.params,id: parseInt(route.params)}),
       }

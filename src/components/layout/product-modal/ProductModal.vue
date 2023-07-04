@@ -1,10 +1,13 @@
 <script setup>
-import { ref, reactive, computed, onMounted,onBeforeMount,inject } from 'vue';
+import { ref, reactive, computed, onMounted, onBeforeMount, onUnmounted, inject } from 'vue';
 import { useRoute } from 'vue-router';
+import { useBasketStore } from '../../../stores/basket';
+import router from '@/router';
 
 const api_url = inject('api_url');
 const images_url = inject('images_url');
 const route = useRoute();
+
 
 const props = defineProps({
     product_id: Number,
@@ -16,6 +19,10 @@ const props = defineProps({
     productModalOpenOrClosed: Function,
 })
 
+const closeTheModal = (()=>{
+    router.push('../');
+});
+
 
 const productModal = reactive({
     product_id: null,
@@ -23,7 +30,7 @@ const productModal = reactive({
     description: "",
     img_url: "",
     price: "",
-    quantity:1
+    quantity: 1
 })
 
 // const productModal = reactive({
@@ -41,7 +48,7 @@ const handleParentClick = (event) => {
     // Check if the clicked element is the parent div
     if (event.target === parentDiv.value) {
         // Your script logic here
-        props.productModalOpenOrClosed();
+        closeTheModal();
         console.log('Parent div clicked');
     }
 };
@@ -102,8 +109,23 @@ const totalProductPrice = computed(() => {
     return calculateNumberPriceAndQuantity(textPriceToNumber(productModal.price), productQuantity.value)
 })
 
-const addToBasket = () => {
 
+
+const basket = useBasketStore();
+
+const addToBasket = () => {
+    const order = {
+        product_id: productModal.product_id,
+        extras: {
+            sugar: "white"
+        },
+        price: productModal.price,
+        quantity: productQuantity.value,
+        // Other order details...
+    };
+    console.log();
+    basket.addOrder(order);
+    closeTheModal();
 }
 
 function getSingleProductData(id) {
@@ -115,39 +137,39 @@ function getSingleProductData(id) {
         body: data
     }
     {
-            // id = 1;
-            fetch(api_url + 'ajax/post/single-product-page.php', settings)
-                .then((response) => response.json())
-                .then((data) => {
-                    const results = data;
-                    console.log("results", results);
-                    if(results.status == "true"){
-                        productModal.product_id =  results.data.product_id;
-                        productModal.title =  results.data.product_name;
-                        productModal.description =  results.data.product_description;
-                        if(results.data.product_image_url){
-                            productModal.img_url =  images_url + 'products/'+ results.data.product_image_url;
+        // id = 1;
+        fetch(api_url + 'ajax/post/single-product-page.php', settings)
+            .then((response) => response.json())
+            .then((data) => {
+                const results = data;
+                console.log("results", results);
+                if (results.status == "true") {
+                    productModal.product_id = results.data.product_id;
+                    productModal.title = results.data.product_name;
+                    productModal.description = results.data.product_description;
+                    if (results.data.product_image_url) {
+                        productModal.img_url = images_url + 'products/' + results.data.product_image_url;
 
-                        }
-                        productModal.price =  results.data.price;
                     }
+                    productModal.price = results.data.price;
+                }
 
-                    // this.displayCategories = true;
+                // this.displayCategories = true;
 
-                })
-                .catch((error) => {
-                    console.error('There has been a problem with your fetch operation:', error);
-                });
-        }
+            })
+            .catch((error) => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
+    }
 };
 // Created
 onBeforeMount(() => {
     console.log("productModal works");
 
-console.log(" route.params= ", route.params);
-    const productId = route.params.product_id || '';
+    console.log(" route.params= ", route.params);
+    const productId = route.params.product || '';
 
-    if(productId){
+    if (productId) {
 
         console.log("productId: " + productId);
         getSingleProductData(productId)
@@ -155,6 +177,16 @@ console.log(" route.params= ", route.params);
     }
 }
 );
+
+onMounted(() => {
+    document.body.classList.add('modal-open');
+
+})
+
+onUnmounted(() => {
+    document.body.classList.remove('modal-open');
+
+})
 
 </script>
 <template>
@@ -165,8 +197,8 @@ console.log(" route.params= ", route.params);
                 <!-- header -->
                 <div class="modal-header p-0 position-sticky top-0 end-0 " style="z-index:1">
 
-                    <div @click="productModalOpenOrClosed" class="close "><font-awesome-icon icon="fa-solid fa-xmark" />
-                    </div>
+                        <div @click="closeTheModal" class="close "><font-awesome-icon icon="fa-solid fa-xmark" />
+                        </div>
 
 
                 </div>
@@ -175,7 +207,8 @@ console.log(" route.params= ", route.params);
                     <div class="card">
                         <img v-if="productModal.img_url" :src="productModal.img_url" class="card-img-top" alt="...">
                         <div class="card-body">
-                            <h5 v-if="productModal.title" class="card-title fw-bold text-start ">{{ productModal.title }}</h5>
+                            <h5 v-if="productModal.title" class="card-title fw-bold text-start ">{{ productModal.title }}
+                            </h5>
                             <div v-if="productModal.description">
                                 <p ref="contentRef" class="card-text text-start pb-0 mb-0 description "
                                     old-class="hideExtraTextInDescription ? 'limitDescriptionCharacters pb-0 mb-0' : ''"
@@ -206,8 +239,9 @@ console.log(" route.params= ", route.params);
                                 </div>
                             </div>
                             <div class="col-6">
-                                <button class="btn btn-success btn-sm add">Προσθήκη <b v-if="totalProductPrice">{{
-                                    totalProductPrice }}€</b></button>
+                                <button @click="addToBasket" class="btn btn-success btn-sm add">Προσθήκη <b
+                                        v-if="totalProductPrice">{{
+                                            totalProductPrice }}€</b></button>
 
                             </div>
 
@@ -295,5 +329,9 @@ console.log(" route.params= ", route.params);
     border-color: #8bbafe;
     outline: 0;
     box-shadow: none;
+}
+
+a {
+    text-decoration: none;
 }
 </style>
