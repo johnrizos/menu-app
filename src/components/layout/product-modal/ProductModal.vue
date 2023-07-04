@@ -9,15 +9,15 @@ const images_url = inject('images_url');
 const route = useRoute();
 
 
-const props = defineProps({
-    product_id: Number,
-    title: String,
-    description: String,
-    img_url: String,
-    price: String,
-    addToTheCard: Function,
-    productModalOpenOrClosed: Function,
-})
+// const props = defineProps({
+//     product_id: Number,
+//     title: String,
+//     description: String,
+//     img_url: String,
+//     price: String,
+//     addToTheCard: Function,
+//     productModalOpenOrClosed: Function,
+// })
 
 const closeTheModal = (()=>{
     router.push('../');
@@ -106,7 +106,12 @@ const calculateNumberPriceAndQuantity = (price, quantity) => {
 }
 
 const totalProductPrice = computed(() => {
-    return calculateNumberPriceAndQuantity(textPriceToNumber(productModal.price), productQuantity.value)
+    if(productModal.price){
+        return calculateNumberPriceAndQuantity(textPriceToNumber(productModal.price), productQuantity.value)
+
+    }else{
+        return "";
+    }
 })
 
 
@@ -116,6 +121,7 @@ const basket = useBasketStore();
 const addToBasket = () => {
     const order = {
         product_id: productModal.product_id,
+        title: productModal.title,
         extras: {
             sugar: "white"
         },
@@ -239,8 +245,8 @@ onUnmounted(() => {
                                 </div>
                             </div>
                             <div class="col-6">
-                                <button @click="addToBasket" class="btn btn-success btn-sm add">Προσθήκη <b
-                                        v-if="totalProductPrice">{{
+                                <button v-if="totalProductPrice" @click="addToBasket" class="btn btn-success btn-sm add">Προσθήκη <b
+                                        >{{
                                             totalProductPrice }}€</b></button>
 
                             </div>

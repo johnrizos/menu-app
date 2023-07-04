@@ -3,6 +3,7 @@ import HomePage from "../pages/HomePage.vue";
 import CategoryPage from "../pages/CategoryPage.vue";
 import Test from "../pages/Test.vue";
 import ProductModal from "@/components/layout/product-modal/ProductModal.vue";
+import BasketPage from "../pages/BasketPage.vue";
 
 const routes = [
   {
@@ -23,6 +24,10 @@ const routes = [
   {
     path: "/test",
     component: Test,
+  },
+  {
+    path: "/basket",
+    component: BasketPage,
   }
 
 

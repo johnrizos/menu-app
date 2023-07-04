@@ -2,11 +2,15 @@
 import { ref } from "vue";
 
 import { useBasketStore } from '../../stores/basket';
+import router from '@/router';
 
+const basketPageRoute = (()=>{
+    router.push('/basket');
+});
 const basketStore = useBasketStore();
 </script>
 <template>
-    <div class="position-fixed  bottom-0 start-50 translate-middle-x"
+    <div @click="basketPageRoute" class="position-fixed  bottom-0 start-50 translate-middle-x"
         style="width:100%;">
         <div class="card w-100 m-auto">
             <div class="card-body">

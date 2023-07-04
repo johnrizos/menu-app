@@ -6,7 +6,7 @@
         <!-- Copyright -->
         <div class="text-center p-2 text-dark">
             © 2023 Copyright:
-            <a class="text-dark  " href="https://mdbootstrap.com/">Menuito</a>
+            <a class="text-dark  " href="/">Menuito</a>
         </div>
         <!-- Copyright -->
     </footer>
