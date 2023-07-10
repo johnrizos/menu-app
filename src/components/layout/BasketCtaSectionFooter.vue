@@ -10,7 +10,7 @@ const basketPageRoute = (()=>{
 const basketStore = useBasketStore();
 </script>
 <template>
-    <div @click="basketPageRoute" class="position-fixed  bottom-0 start-50 translate-middle-x"
+    <div @click="basketPageRoute" class="position-fixed  bottom-0 start-50 translate-middle-x basket-cta"
         style="width:100%;">
         <div class="card w-100 m-auto">
             <div class="card-body">
@@ -21,7 +21,7 @@ const basketStore = useBasketStore();
                 </button> -->
                 
                 <div class="d-grid gap-2">
-                    <button class="btn btn-warning fw-bold btn-lg" type="button">
+                    <button class="btn btn-warning fw-bold btn py-2" type="button">
                         <div class="d-flex justify-content-between">
                         <div><span
                         class="badge bg-white text-dark mx-2">{{ basketStore.totalQuantityOfProducts }}</span></div>
@@ -37,4 +37,10 @@ const basketStore = useBasketStore();
 </template>
 
 
-<style  scoped></style>
+<style  scoped>
+
+
+.basket-cta{
+  max-width:400px;
+}
+</style>
