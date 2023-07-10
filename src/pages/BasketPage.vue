@@ -10,6 +10,11 @@ const backRoute = (() => {
   router.back();
 });
 
+const proceedToCheckOut = (() => {
+  console.log("proceedToCheckOut works");
+  router.push("/checkout");
+});
+
 
 const [textPriceToNumber, calculateNumberPriceAndQuantity, totalProductPrice] = priceHook();
 
@@ -29,7 +34,7 @@ console.log("test", textPriceToNumber("10,23"));
                     icon="fa-solid fa-angle-left" /></div>
               </div>
               <div class="col-10">
-                <div class="d-flex justify-content-center">Παραγγελία</div>
+                <div class="d-flex justify-content-center">Καλάθι Αγορών</div>
 
               </div>
             </div>
@@ -58,7 +63,7 @@ console.log("test", textPriceToNumber("10,23"));
                   <div style="width: 80px;">
                     <p class="mb-0">{{ totalProductPrice(value.price, value.quantity) }}€</p>
                   </div>
-                  <a href="#!" style="color: #cecece;" class="text-danger"><i class="fas fa-trash-alt"></i></a>
+                  <div  @click="basketStore.removerItem(key)" style="color: #cecece;" class="text-danger"><i class="fas fa-trash-alt"></i></div>
                 </div>
               </div>
             </div>
@@ -66,15 +71,15 @@ console.log("test", textPriceToNumber("10,23"));
 
         </div>
         <!-- footer  -->
-        <div class="position-fixed  bottom-0 start-50 translate-middle-x checkout-cta" style="width:100%;">
+        <div v-if="basketStore.totalQuantityOfProducts > 0" class="position-fixed  bottom-0 start-50 translate-middle-x checkout-cta" style="width:100%;">
           <div class="card w-100 m-auto">
             <div class="card-body">
               <div class="d-grid gap-2">
-                <button class="btn btn-success fw-bold btn py-2" type="button">
+                <button @click="proceedToCheckOut" class="btn btn-success fw-bold btn py-2" type="button">
                   <div class="d-flex justify-content-between">
                     <div><span class="badge bg-white text-dark mx-2">{{ basketStore.totalQuantityOfProducts }}</span>
                     </div>
-                    <div> Αποστολή παραγελίας </div>
+                    <div> Ολοκλήρωση Παραγγελίας </div>
                     <div>{{ basketStore.totalPrice }}€</div>
 
                   </div>

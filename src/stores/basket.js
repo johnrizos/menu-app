@@ -19,12 +19,19 @@ export const useBasketStore = defineStore("basket", () => {
   //   };
   const basket = ref({});
   //   const doubleCount = computed(() => count.value * 2)
+
   function addOrder(order) {
     basket.value[generateOrderId()] = order;
     console.log("order added to basket", order);
     console.log("basket.value", basket.value);
 
     localStorage.setItem("orders", JSON.stringify(basket.value));
+  }
+
+  const  removerItem = (orderId)=> {
+    delete basket.value[orderId];
+    localStorage.setItem("orders", JSON.stringify(basket.value));
+
   }
 
   const textPriceToNumber = (price) => {
@@ -64,5 +71,5 @@ const totalQuantityOfProducts = computed(() => {
     // return calculateNumberPriceAndQuantity(textPriceToNumber(productModal.price), productQuantity.value)
 
   });
-  return { basket, addOrder,totalPrice,totalQuantityOfProducts };
+  return { basket, addOrder,totalPrice,totalQuantityOfProducts,removerItem };
 });

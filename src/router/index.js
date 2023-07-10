@@ -4,6 +4,7 @@ import CategoryPage from "../pages/CategoryPage.vue";
 import Test from "../pages/Test.vue";
 import ProductModal from "@/components/layout/product-modal/ProductModal.vue";
 import BasketPage from "../pages/BasketPage.vue";
+import CheckOutPage from "../pages/CheckOutPage.vue";
 
 const routes = [
   {
@@ -28,6 +29,10 @@ const routes = [
   {
     path: "/basket",
     component: BasketPage,
+  },
+  {
+    path: "/checkout",
+    component: CheckOutPage,
   }
 
 
