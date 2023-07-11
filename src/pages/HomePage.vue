@@ -2,6 +2,7 @@
 // import FooterCategory from '../components/layout/FooterCategory.vue';
 import HeaderCategory from '../components/layout/HeaderCategory.vue';
 import PageCard from '../components/layout/home-page-components/PageCard.vue';
+
 import { reactive, onBeforeMount,inject,ref  } from 'vue';
 
 
@@ -63,7 +64,7 @@ onBeforeMount(()=>{
             <!-- end of row-->
         </div>
     </section>
-    <!-- <footer-category></footer-category> -->
+      <!-- <footer-section></footer-section> -->
 </template>
 
 

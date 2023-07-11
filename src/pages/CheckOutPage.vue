@@ -1,14 +1,12 @@
 <script setup>
-import { ref } from 'vue';
+import { ref,watch,onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
 import { useBasketStore } from '../stores/basket';
 import router from '@/router';
 import priceHook from '../hooks/price/priceHook.js';
-
+import goBackOrHome from '../hooks/navigation/goBackOrHome.js';
+import validateCreditCard from '../hooks/payment/creditCard/validateCreditCard.js';
 const basketStore = useBasketStore();
-const backRoute = (() => {
-    router.back();
-});
 
 const proceedToCheckOut = (() => {
     console.log("proceedToCheckOut works");
@@ -20,6 +18,47 @@ const [textPriceToNumber, calculateNumberPriceAndQuantity, totalProductPrice] = 
 
 console.log("test", textPriceToNumber("10,23"));
 
+
+
+// payment form
+
+const cardBrand = ref(null);
+const isCreditCardValid = ref(null);
+const  cardNumberRef = ref(null)
+const  cardNumber = ref(null)
+const blurCardNumber = ()=>{
+    cardNumber.value = cardNumberRef.value.value;
+    console.log("cardNumber = ",cardNumber.value);
+}
+
+watch(cardNumber, (newCardNumber, oldCardNumber) => {
+console.log("newCardNumber = ",newCardNumber);
+console.log(validateCreditCard(newCardNumber));
+const validateCreditCardResults =  validateCreditCard(newCardNumber);
+cardBrand.value = validateCreditCardResults.cardBrand;
+isCreditCardValid.value = validateCreditCardResults.isCreditCardValid;
+})
+// end of payment form
+
+
+watch(basketStore, (newValue, oldValue) => {
+  console.log("newValue totalQuantityOfProducts", newValue.totalQuantityOfProducts);
+  if (newValue.totalQuantityOfProducts === 0) {
+   goBackOrHome();
+  }
+})
+
+
+
+
+
+
+onBeforeMount(()=>{
+  if(!basketStore.totalQuantityOfProducts || basketStore.totalQuantityOfProducts === 0){
+   goBackOrHome();
+  }
+})
+
 </script>
 <template>
     <section class="" style="background-color: #eee;">
@@ -30,7 +69,7 @@ console.log("test", textPriceToNumber("10,23"));
                         <div class="row bg-white p-3 shadow  mb-2 bg-body  rounded d-flex ">
 
                             <div class="col-1">
-                                <div @click="backRoute" class="d-flex justify-content-start"><font-awesome-icon
+                                <div @click="goBackOrHome" class="d-flex justify-content-start"><font-awesome-icon
                                         icon="fa-solid fa-angle-left" /></div>
                             </div>
                             <div class="col-10">
@@ -148,14 +187,16 @@ console.log("test", textPriceToNumber("10,23"));
                                                 data-parent="#accordionExample">
                                                 <div class="card-body payment-card-body">
 
-                                                    <span class="font-weight-normal card-text">Card Number</span>
+                                                    <span  class="font-weight-normal card-text">Card Number</span>
                                                     <div class="input">
 
                                                         <i class="fa fa-credit-card"></i>
-                                                        <input type="text" class="form-control"
+                                                        <input @blur="blurCardNumber" ref="cardNumberRef" type="text" class="form-control"
                                                             placeholder="0000 0000 0000 0000">
 
                                                     </div>
+                                                    <span v-if="cardBrand">{{ cardBrand }}</span>
+                                                    <span v-if="isCreditCardValid != null && isCreditCardValid === false "> - Μη έγκυρος αριθμός πιστωτικής κάρτας.</span>
 
                                                     <div class="row mt-3 mb-3">
 

@@ -44,9 +44,7 @@ console.log("localStorage.getItem() = ",localStorage.getItem("orders"));
       <router-view></router-view>
     </div>
     <!-- end of main -->
-    <div class="footer">
       <footer-section></footer-section>
-    </div>
   </div>
 </template>
 

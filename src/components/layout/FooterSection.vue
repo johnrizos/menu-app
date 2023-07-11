@@ -1,15 +1,18 @@
 <template>
     <!-- <footer class="bg-info text-center text-lg-start position-absolute bottom-0 w-100"> -->
-    <footer class="bg-white text-center text-lg-start mt-auto">
+    <div class="footer">
+
+        <footer class="bg-white text-center text-lg-start mt-auto">
 
 
-        <!-- Copyright -->
-        <div class="text-center p-2 text-dark">
-            © 2023 Copyright:
-            <a class="text-dark  " href="/">Menuito</a>
-        </div>
-        <!-- Copyright -->
-    </footer>
+            <!-- Copyright -->
+            <div class="text-center p-2 text-dark">
+                © 2023 Copyright:
+                <a class="text-dark  " href="/">Menuito</a>
+            </div>
+            <!-- Copyright -->
+        </footer>
+    </div>
 </template>
 
 <script>

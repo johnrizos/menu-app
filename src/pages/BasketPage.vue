@@ -1,15 +1,12 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch,onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
 import { useBasketStore } from '../stores/basket';
 import router from '@/router';
 import priceHook from '../hooks/price/priceHook.js';
+import goBackOrHome from '../hooks/navigation/goBackOrHome.js';
 
 const basketStore = useBasketStore();
-const backRoute = (() => {
-  router.back();
-});
-
 const proceedToCheckOut = (() => {
   console.log("proceedToCheckOut works");
   router.push("/checkout");
@@ -20,6 +17,19 @@ const [textPriceToNumber, calculateNumberPriceAndQuantity, totalProductPrice] = 
 
 console.log("test", textPriceToNumber("10,23"));
 
+
+watch(basketStore, (newValue, oldValue) => {
+  console.log("newValue totalQuantityOfProducts", newValue.totalQuantityOfProducts);
+  if (newValue.totalQuantityOfProducts === 0) {
+   goBackOrHome();
+  }
+})
+
+onBeforeMount(()=>{
+  if(!basketStore.totalQuantityOfProducts || basketStore.totalQuantityOfProducts === 0){
+   goBackOrHome();
+  }
+})
 </script>
 <template>
   <section class="" style="background-color: #eee;">
@@ -30,11 +40,11 @@ console.log("test", textPriceToNumber("10,23"));
             <div class="row bg-white p-3 shadow  mb-2 bg-body  rounded d-flex ">
 
               <div class="col-1">
-                <div @click="backRoute" class="d-flex justify-content-start"><font-awesome-icon
+                <div @click="goBackOrHome" class="d-flex justify-content-start"><font-awesome-icon
                     icon="fa-solid fa-angle-left" /></div>
               </div>
               <div class="col-10">
-                <div class="d-flex justify-content-center">Καλάθι Αγορών</div>
+                <div class="d-flex justify-content-center">Καλάθι</div>
 
               </div>
             </div>
@@ -63,7 +73,8 @@ console.log("test", textPriceToNumber("10,23"));
                   <div style="width: 80px;">
                     <p class="mb-0">{{ totalProductPrice(value.price, value.quantity) }}€</p>
                   </div>
-                  <div  @click="basketStore.removerItem(key)" style="color: #cecece;" class="text-danger"><i class="fas fa-trash-alt"></i></div>
+                  <div @click="basketStore.removerItem(key)" style="color: #cecece;" class="text-danger"><i
+                      class="fas fa-trash-alt"></i></div>
                 </div>
               </div>
             </div>
@@ -71,7 +82,8 @@ console.log("test", textPriceToNumber("10,23"));
 
         </div>
         <!-- footer  -->
-        <div v-if="basketStore.totalQuantityOfProducts > 0" class="position-fixed  bottom-0 start-50 translate-middle-x checkout-cta" style="width:100%;">
+        <div v-if="basketStore.totalQuantityOfProducts > 0"
+          class="position-fixed  bottom-0 start-50 translate-middle-x checkout-cta" style="width:100%;">
           <div class="card w-100 m-auto">
             <div class="card-body">
               <div class="d-grid gap-2">

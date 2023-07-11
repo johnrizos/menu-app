@@ -2,7 +2,7 @@
 // import { json } from 'body-parser';
 // import FooterCategory from '../components/layout/FooterCategory.vue';
 import HeaderCategory from '../components/layout/HeaderCategory.vue';
-import SingleCategorySection from '../components/layout/category-page-components/SingleCategorySection.vue'
+import SingleCategorySection from '../components/layout/category-page-components/SingleCategorySection.vue';
 import { reactive, ref, computed, onBeforeMount, inject, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import BasketCtaSectionFooter from '../components/layout/BasketCtaSectionFooter.vue'
@@ -215,6 +215,7 @@ console.log(" route.params= ", route.params);
 
     <basket-cta-section-footer v-if="basketStore.totalQuantityOfProducts > 0">
     </basket-cta-section-footer>
+
 </template>
 
 
