@@ -40,7 +40,7 @@ console.log("localStorage.getItem() = ",localStorage.getItem("orders"));
 <template>
   <div class="wrapper">
     <!-- main -->
-    <div class="content pb-1">
+    <div class="content">
       <router-view></router-view>
     </div>
     <!-- end of main -->
@@ -60,6 +60,8 @@ body {
 
 .content{
   background-color: #F2F3F7;
+  padding-bottom:50px;
+  /* overflow: hidden; */
 }
 
 #app {

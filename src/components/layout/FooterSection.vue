@@ -1,6 +1,6 @@
 <template>
     <!-- <footer class="bg-info text-center text-lg-start position-absolute bottom-0 w-100"> -->
-    <div class="footer">
+    <div class="footer mt-auto">
 
         <footer class="bg-white text-center text-lg-start mt-auto">
 

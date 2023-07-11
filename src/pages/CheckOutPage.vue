@@ -384,10 +384,10 @@ body {
 
 }
 
-.card {
+/* .card-payment {
 
     border: none;
-}
+} */
 
 .card-header {
     padding: .5rem 1rem;
