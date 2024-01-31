@@ -3,13 +3,25 @@
 // import FooterCategory from '../components/layout/FooterCategory.vue';
 import HeaderCategory from '../components/layout/HeaderCategory.vue';
 import SingleCategorySection from '../components/layout/category-page-components/SingleCategorySection.vue';
-import { reactive, ref, computed, onBeforeMount, inject, watch } from 'vue';
+import { reactive, ref, computed, onMounted, onBeforeMount, inject, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import BasketCtaSectionFooter from '../components/layout/BasketCtaSectionFooter.vue'
 
 import ProductModal from '@/components/layout/product-modal/ProductModal.vue';
 import { useBasketStore } from '../stores/basket';
 
+// new
+import allProductCategories from '../http/product-categories/product-categories.js';
+
+
+// new
+const  page = reactive({
+    id: null,
+    name: "",
+    description: "",
+    image: "",
+});
+// end of new
 const basketStore = useBasketStore();
 const api_url = inject('api_url');
 const images_url = inject('images_url');
@@ -26,17 +38,6 @@ const productModalOpenOrClosed = ()=>{
     vueModal.value = !vueModal.value;
     document.body.classList.toggle('modal-open'); // Add or remove class
 }
-
-
-// test
-// const product = reactive({
-//     product_id: 1,
-//     title: "Ελληνικός μονός",
-//     description: "O Ελληνικός καφές είναι είδος καφέ που παρασκευάζεται με ψήσιμο, σε μπρίκι, αλεσμένων σε λεπτή σκόνη καβουρντισμένων κόκκων καφέ και ο οποίος πίνεται περισσότερο από κάθε άλλο είδος καφέ σε πολλές περιοχές της ανατολικής Μεσογείου, της Μέσης Ανατολής, των Βαλκανίων και της Βόρειας Αφρικής.O Ελληνικός καφές είναι είδος καφέ που παρασκευάζεται με ψήσιμο, σε μπρίκι, αλεσμένων σε λεπτή σκόνη καβουρντισμένων κόκκων καφέ και ο οποίος πίνεται περισσότερο από κάθε άλλο είδος καφέ σε πολλές περιοχές της ανατολικής Μεσογείου, της Μέσης Ανατολής, των Βαλκανίων και της Βόρειας ΑφρικήςO Ελληνικός καφές είναι είδος καφέ που παρασκευάζεται με ψήσιμο, σε μπρίκι, αλεσμένων σε λεπτή σκόνη καβουρντισμένων κόκκων καφέ και ο οποίος πίνεται περισσότερο από κάθε άλλο είδος καφέ σε πολλές περιοχές της ανατολικής Μεσογείου, της Μέσης Ανατολής, των Βαλκανίων και της Βόρειας ΑφρικήςO Ελληνικός καφές είναι είδος καφέ που παρασκευάζεται με ψήσιμο, σε μπρίκι, αλεσμένων σε λεπτή σκόνη καβουρντισμένων κόκκων καφέ και ο οποίος πίνεται περισσότερο από κάθε άλλο είδος καφέ σε πολλές περιοχές της ανατολικής Μεσογείου, της Μέσης Ανατολής, των Βαλκανίων και της Βόρειας ΑφρικήςO Ελληνικός καφές είναι είδος καφέ που παρασκευάζεται με ψήσιμο, σε μπρίκι, αλεσμένων σε λεπτή σκόνη καβουρντισμένων κόκκων καφέ και ο οποίος πίνεται περισσότερο από κάθε άλλο είδος καφέ σε πολλές περιοχές της ανατολικής Μεσογείου, της Μέσης Ανατολής, των Βαλκανίων και της Βόρειας Αφρικής",
-//     img_url: "http://localhost/menu/api/images/products/6475b39226d34951cb70767239394d2208f47a5995d38.jpg",
-//     price: "1,75",
-//     quantity:1
-// })
 
 const productModal = reactive({
     product_id: null,
@@ -81,6 +82,8 @@ const categoryId = ref('');
 const productId = ref('');
 let subCategories = ref({});
 const errorMessage = ref('');
+
+const productCategories = ref([]);
 
 // Computed
 const randomId = computed(() => {
@@ -169,6 +172,15 @@ console.log(" route.params= ", route.params);
 }
 );
 
+onMounted(async ()=>{
+    const { data } = await allProductCategories(1);
+    console.log("data", data);
+    page = data.data;
+    productCategories.value = data.data;
+
+
+})
+
 </script>
 
 <template>
@@ -192,7 +204,7 @@ console.log(" route.params= ", route.params);
                 <!---->
                 <!-- section here -->
  
-                <div v-if="(subCategories.length > 0 || Object.keys(subCategories).length > 0)">
+                <div v-if="(productCategories.length > 0 || Object.keys(productCategories).length > 0)">
                     <single-category-section v-for="category in subCategories" :category="category" :key="category.id" :productModalOpenOrClosed="productModalOpenOrClosed" :updateProductModal="updateProductModal">
                     </single-category-section>
                 </div>
