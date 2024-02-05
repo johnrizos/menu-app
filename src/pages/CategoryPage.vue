@@ -3,9 +3,9 @@
 // import FooterCategory from '../components/layout/FooterCategory.vue';
 import HeaderCategory from '../components/layout/HeaderCategory.vue';
 import SingleCategorySection from '../components/layout/category-page-components/SingleCategorySection.vue';
-import { reactive, ref, computed, onMounted,  inject, watch } from 'vue';
+import { reactive, ref, computed, onMounted,  inject } from 'vue';
 import { useRoute } from 'vue-router';
-import BasketCtaSectionFooter from '../components/layout/BasketCtaSectionFooter.vue'
+import BasketCtaSectionFooter from '../components/layout/BasketCtaSectionFooter.vue';
 
 import ProductModal from '@/components/layout/product-modal/ProductModal.vue';
 import { useBasketStore } from '../stores/basket';
@@ -25,7 +25,6 @@ const  page = reactive({
 const pageProductsAndCategories = ref([]);
 // end of new
 const basketStore = useBasketStore();
-const api_url = inject('api_url');
 const images_url = inject('images_url');
 
 const products = ref([]);
@@ -78,7 +77,7 @@ console.log("result=",result[0]);
 }
 
 // Data
-const route = useRoute();
+// const route = useRoute();
 
 const categoryId = ref('');
 const productId = ref('');
@@ -98,7 +97,11 @@ const randomId = computed(() => {
 
 
 onMounted(async ()=>{
-    const { data } = await allProductCategories(1);
+    const route =  useRoute();
+ categoryId.value = route.params.id;
+
+console.log("Category ID:", categoryId.value);
+    const { data } = await allProductCategories(categoryId.value);
     console.log("data", data);
     pageProductsAndCategories.value = data.data[0];
     console.log("pageProductsAndCategories", pageProductsAndCategories.value);

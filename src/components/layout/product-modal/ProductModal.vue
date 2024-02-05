@@ -3,11 +3,18 @@ import { ref, reactive, computed, onMounted, onBeforeMount, onUnmounted, inject 
 import { useRoute } from 'vue-router';
 import { useBasketStore } from '../../../stores/basket';
 import router from '@/router';
+import price from '../../../hooks/price/priceHook.js';
+import productAndExtrasData from '../../../http/product/product-api.js';
 
 const api_url = inject('api_url');
 const images_url = inject('images_url');
 const route = useRoute();
+const productId = ref();
+const productAndExtras = ref({});
 
+console.log("Product Modal price",price);
+
+const { numberPriceToText } = price();
 
 // const props = defineProps({
 //     product_id: Number,
@@ -33,14 +40,6 @@ const productModal = reactive({
     quantity: 1
 })
 
-// const productModal = reactive({
-//     product_id: 1,
-//     title: "Ελληνικός μονός",
-//     description: "O Ελληνικός καφές είναι είδος καφέ που παρασκευάζεται με ψήσιμο, σε μπρίκι, αλεσμένων σε λεπτή σκόνη καβουρντισμένων κόκκων καφέ και ο οποίος πίνεται περισσότερο από κάθε άλλο είδος καφέ σε πολλές περιοχές της ανατολικής Μεσογείου, της Μέσης Ανατολής, των Βαλκανίων και της Βόρειας Αφρικής.O Ελληνικός καφές είναι είδος καφέ που παρασκευάζεται με ψήσιμο, σε μπρίκι, αλεσμένων σε λεπτή σκόνη καβουρντισμένων κόκκων καφέ και ο οποίος πίνεται περισσότερο από κάθε άλλο είδος καφέ σε πολλές περιοχές της ανατολικής Μεσογείου, της Μέσης Ανατολής, των Βαλκανίων και της Βόρειας ΑφρικήςO Ελληνικός καφές είναι είδος καφέ που παρασκευάζεται με ψήσιμο, σε μπρίκι, αλεσμένων σε λεπτή σκόνη καβουρντισμένων κόκκων καφέ και ο οποίος πίνεται περισσότερο από κάθε άλλο είδος καφέ σε πολλές περιοχές της ανατολικής Μεσογείου, της Μέσης Ανατολής, των Βαλκανίων και της Βόρειας ΑφρικήςO Ελληνικός καφές είναι είδος καφέ που παρασκευάζεται με ψήσιμο, σε μπρίκι, αλεσμένων σε λεπτή σκόνη καβουρντισμένων κόκκων καφέ και ο οποίος πίνεται περισσότερο από κάθε άλλο είδος καφέ σε πολλές περιοχές της ανατολικής Μεσογείου, της Μέσης Ανατολής, των Βαλκανίων και της Βόρειας ΑφρικήςO Ελληνικός καφές είναι είδος καφέ που παρασκευάζεται με ψήσιμο, σε μπρίκι, αλεσμένων σε λεπτή σκόνη καβουρντισμένων κόκκων καφέ και ο οποίος πίνεται περισσότερο από κάθε άλλο είδος καφέ σε πολλές περιοχές της ανατολικής Μεσογείου, της Μέσης Ανατολής, των Βαλκανίων και της Βόρειας Αφρικής",
-//     img_url: "http://localhost/menu/api/images/products/6475b39226d34951cb70767239394d2208f47a5995d38.jpg",
-//     price: "1,75",
-//     quantity:1
-// })
 
 // modal
 const parentDiv = ref(null);
@@ -134,58 +133,16 @@ const addToBasket = () => {
     closeTheModal();
 }
 
-function getSingleProductData(id) {
-    // id = 1;
-    const data = new FormData();
-    data.append('product_id', id);
-    let settings = {
-        method: 'POST',
-        body: data
-    }
-    {
-        // id = 1;
-        fetch(api_url + 'ajax/post/single-product-page.php', settings)
-            .then((response) => response.json())
-            .then((data) => {
-                const results = data;
-                console.log("results", results);
-                if (results.status == "true") {
-                    productModal.product_id = results.data.product_id;
-                    productModal.title = results.data.product_name;
-                    productModal.description = results.data.product_description;
-                    if (results.data.product_image_url) {
-                        productModal.img_url = images_url + 'products/' + results.data.product_image_url;
+onMounted(async ()=>{
 
-                    }
-                    productModal.price = results.data.price;
-                }
-
-                // this.displayCategories = true;
-
-            })
-            .catch((error) => {
-                console.error('There has been a problem with your fetch operation:', error);
-            });
-    }
-};
-// Created
-onBeforeMount(() => {
-    console.log("productModal works");
-
-    console.log(" route.params= ", route.params);
-    const productId = route.params.product || '';
-
-    if (productId) {
-
-        console.log("productId: " + productId);
-        getSingleProductData(productId)
-
-    }
-}
-);
-
-onMounted(() => {
     document.body.classList.add('modal-open');
+    // console.log(" route.params= ", route.params);
+    productId.value = route.params.product || '';
+    // console.log("productId: " + productId.value);
+    const { data } = await productAndExtrasData(productId.value);
+    productAndExtras.value = data.data[0];
+    console.log("productAndExtras=",productAndExtras.value);
+
 
 })
 
@@ -213,17 +170,17 @@ onUnmounted(() => {
                     <div class="card">
                         <img v-if="productModal.img_url" :src="productModal.img_url" class="card-img-top" alt="...">
                         <div class="card-body">
-                            <h5 v-if="productModal.title" class="card-title fw-bold text-start ">{{ productModal.title }}
+                            <h5 v-if="productAndExtras.name" class="card-title fw-bold text-start ">{{ productAndExtras.name }}
                             </h5>
-                            <div v-if="productModal.description">
+                            <div v-if="productAndExtras.description">
                                 <p ref="contentRef" class="card-text text-start pb-0 mb-0 description "
                                     old-class="hideExtraTextInDescription ? 'limitDescriptionCharacters pb-0 mb-0' : ''"
                                     :class="{ 'expanded pb-0 mb-0': isExpanded }" style="color:rgb(155, 155, 155)">{{
-                                        productModal.description }}</p>
+                                        productAndExtras.description }}</p>
                                 <p v-if="showButton" @click="expandContent" class="text-start fw-bold learn-more pb-0 mb-0">
                                     Μάθε περισσότερα</p>
                             </div>
-                            <p v-if="totalProductPrice" class="text-start fw-bold m-1">{{ totalProductPrice }}€</p>
+                            <p v-if="productAndExtras.price" class="text-start fw-bold m-1">{{ productAndExtras.price }}€</p>
 
                         </div>
                     </div>

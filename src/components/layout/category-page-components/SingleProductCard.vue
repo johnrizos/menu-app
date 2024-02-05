@@ -1,12 +1,16 @@
 
 <script setup>
-import { inject, ref } from 'vue'
+import { inject, ref } from 'vue';
+import price from '../../../hooks/price/priceHook.js'
 // Props
 const api_url = inject('api_url');
 const images_url = inject('images_url');
+// const numberPriceToText = price.numberPriceToText;
+const {numberPriceToText} = price();
+// console.log("numberPriceToText", numberPriceToText(2.11));
 const props = defineProps(
     {
-        product: Array,
+        product: Object,
         productModalOpenOrClosed: Function,
         updateProductModal: Function
     }
@@ -14,7 +18,7 @@ const props = defineProps(
 const id = ref(1);
 
 // Created
-console.log("product.prices=", props.product);
+// console.log("product.prices=", props.product);
 </script>
 
 
@@ -33,7 +37,7 @@ console.log("product.prices=", props.product);
                         </div>
                         <!---->
                         <div class="text-dark-75 label label-inline d-inline label-rounded label-xl">
-                            {{ product.price }} €
+                            {{ numberPriceToText(product.price) }} €
                         </div>
                     </div>
                     <div class="flex-grow-3 flex-shrink-0 image">

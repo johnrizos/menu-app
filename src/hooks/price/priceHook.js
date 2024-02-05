@@ -1,5 +1,9 @@
 export default function price() {
 
+    function numberPriceToText(price) {
+        return Number(price).toFixed(2).toString().replace(".", ",");
+    }
+
     function textPriceToNumber(price) {
 
         const replacedPrice = price.replace(",", ".");
@@ -21,5 +25,5 @@ export default function price() {
     }
 
 
-    return [textPriceToNumber,calculateNumberPriceAndQuantity,totalProductPrice]
+    return {numberPriceToText,calculateNumberPriceAndQuantity,totalProductPrice}
 }
