@@ -3,7 +3,7 @@
 // import FooterCategory from '../components/layout/FooterCategory.vue';
 import HeaderCategory from '../components/layout/HeaderCategory.vue';
 import SingleCategorySection from '../components/layout/category-page-components/SingleCategorySection.vue';
-import { reactive, ref, computed, onMounted, onBeforeMount, inject, watch } from 'vue';
+import { reactive, ref, computed, onMounted,  inject, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import BasketCtaSectionFooter from '../components/layout/BasketCtaSectionFooter.vue'
 
@@ -21,6 +21,8 @@ const  page = reactive({
     description: "",
     image: "",
 });
+
+const pageProductsAndCategories = ref([]);
 // end of new
 const basketStore = useBasketStore();
 const api_url = inject('api_url');
@@ -93,91 +95,28 @@ const randomId = computed(() => {
 })
 
 
-// Methods
- function getSingleCategoryData(id) {
-    // id = 1;
-    let settings = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ id: id })
-    }
-    {
-            // id = 1;
-            fetch(api_url + 'ajax/post/single-category-page.php', settings)
-                .then((response) => response.json())
-                .then((data) => {
-                    const results = data;
-                    console.log("results", results);
-                    subCategories.value = results;
-                    console.log("subCategories", subCategories);
-                    if(subCategories.value.length <= 0){
-                        // log.error("subCategories",subCategories)
-                        errorMessage.value = "Δεν υπάρχουν κατηγορίες";
-                    }
-                    // this.displayCategories = true;
 
-                })
-                .catch((error) => {
-                    console.error('There has been a problem with your fetch operation:', error);
-                });
-        }
-};
-
-const getProducts = (()=> {
-               fetch(api_url + 'ajax/get/show-products.php')
-                .then((response) => response.json())
-                .then((data) => {
-                    const results = data;
-                    console.log("results", results);
-                    products.value = results;
-                    console.log("products", products);
-                    if(products.value.length <= 0){
-                        console.log("products <= 0");
-
-                        // errorMessage = "Δεν υπάρχουν κατηγορίες";
-                    }
-                    // this.displayCategories = true;
-
-                })
-                .catch((error) => {
-                    console.error('There has been a problem with your fetch operation:', error);
-                });
-        
-});
-
-
-
-// Created
-onBeforeMount(() => {
-
-console.log(" route.params= ", route.params);
-    categoryId.value = route.params.id;
-    console.log("categoryId: " + categoryId.value);
-    productId.value = route.params.product_id || '';
-
-    // if(productId.value){
-
-    //     console.log("productId: " + productId.value);
-    //     updateProductModal(productId.value)
-    //     vueModal.value = true
-
-    // }
-
-    getSingleCategoryData(categoryId.value);
-    console.log("subCategories.length = ", subCategories.length);
-    getProducts();
-
-}
-);
 
 onMounted(async ()=>{
     const { data } = await allProductCategories(1);
     console.log("data", data);
-    page = data.data;
-    productCategories.value = data.data;
+    pageProductsAndCategories.value = data.data[0];
+    console.log("pageProductsAndCategories", pageProductsAndCategories.value);
 
+    console.log("pageProductsAndCategories", pageProductsAndCategories.value);
+
+    page.id =  pageProductsAndCategories.value.id;
+    page.name =  pageProductsAndCategories.value.name;
+    page.description =  pageProductsAndCategories.value.description;
+    page.image =  pageProductsAndCategories.value.image;
+    console.log("page", page);
+
+    productCategories.value = pageProductsAndCategories.value.product_and_categories;
+    console.log("productCategories", productCategories.value);
+
+
+
+    // })
 
 })
 
@@ -185,6 +124,7 @@ onMounted(async ()=>{
 
 <template>
     <header-category></header-category>
+    Page name:{{ page.name }}
     <div data-v-4feccd92="" class="container">
         <div data-v-4feccd92="" id="kt_subheader" class="subheader py-2 py-lg-4 subheader-transparent">
             <div data-v-4feccd92=""
@@ -205,7 +145,7 @@ onMounted(async ()=>{
                 <!-- section here -->
  
                 <div v-if="(productCategories.length > 0 || Object.keys(productCategories).length > 0)">
-                    <single-category-section v-for="category in subCategories" :category="category" :key="category.id" :productModalOpenOrClosed="productModalOpenOrClosed" :updateProductModal="updateProductModal">
+                    <single-category-section v-for="productCategory in productCategories" :productCategory="productCategory" :key="productCategory.id" :productModalOpenOrClosed="productModalOpenOrClosed" :updateProductModal="updateProductModal">
                     </single-category-section>
                 </div>
 

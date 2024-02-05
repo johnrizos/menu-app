@@ -26,7 +26,7 @@ console.log("product.prices=", props.product);
                 <div class="d-flex align-items-center justify-content-start singleitem flex-row">
                     <div class="mr-2 flex-grow-1 flex-shrink-1 text-start">
                         <div class="text-dark font-weight-bold mb-1">
-                            <h5>{{ product.title }}</h5>
+                            <h5>{{ product.name }}</h5>
                         </div>
                         <div v-if="product.description" class="text-dark-75 mb-1">
                             {{ product.description }}
@@ -38,7 +38,7 @@ console.log("product.prices=", props.product);
                     </div>
                     <div class="flex-grow-3 flex-shrink-0 image">
                         <div class="symbol symbol-100">
-                            <img v-if="product.img" :src="images_url + 'products/' + product.img"
+                            <img v-if="product.image" :src="images_url + 'products/' + product.image"
                                 alt="/assets/media/logos/menurio-icon.png" class="lazyload lazyloaded">
                             <!---->
                         </div>
