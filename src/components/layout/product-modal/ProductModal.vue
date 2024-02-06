@@ -31,11 +31,11 @@ const closeTheModal = (()=>{
 });
 
 
-const productModal = reactive({
-    product_id: null,
-    title: "",
+const product = reactive({
+    id: null,
+    name: "",
     description: "",
-    img_url: "",
+    image: "",
     price: "",
     quantity: 1
 })
@@ -105,8 +105,9 @@ const calculateNumberPriceAndQuantity = (price, quantity) => {
 }
 
 const totalProductPrice = computed(() => {
-    if(productModal.price){
-        return calculateNumberPriceAndQuantity(textPriceToNumber(productModal.price), productQuantity.value)
+    if(product.price){
+        console.log("productModal.price=",product.price);
+        return calculateNumberPriceAndQuantity(textPriceToNumber(product.price), productQuantity.value)
 
     }else{
         return "";
@@ -119,12 +120,12 @@ const basket = useBasketStore();
 
 const addToBasket = () => {
     const order = {
-        product_id: productModal.product_id,
-        title: productModal.title,
+        product_id: product.id,
+        title: product.name,
         extras: {
             sugar: "white"
         },
-        price: productModal.price,
+        price: product.price,
         quantity: productQuantity.value,
         // Other order details...
     };
@@ -142,6 +143,12 @@ onMounted(async ()=>{
     const { data } = await productAndExtrasData(productId.value);
     productAndExtras.value = data.data[0];
     console.log("productAndExtras=",productAndExtras.value);
+
+    product.id = productAndExtras.value.id;
+    product.name = productAndExtras.value.name;
+    product.description = productAndExtras.value.description;
+    product.image = productAndExtras.value.image;
+    product.price = productAndExtras.value.price;
 
 
 })
@@ -168,7 +175,7 @@ onUnmounted(() => {
                 <!-- body -->
                 <div class="modal-body p-0">
                     <div class="card">
-                        <img v-if="productModal.img_url" :src="productModal.img_url" class="card-img-top" alt="...">
+                        <img v-if="productAndExtras.image" :src="images_url +'products/'+ productAndExtras.image" class="card-img-top" alt="alt image">
                         <div class="card-body">
                             <h5 v-if="productAndExtras.name" class="card-title fw-bold text-start ">{{ productAndExtras.name }}
                             </h5>
@@ -180,7 +187,7 @@ onUnmounted(() => {
                                 <p v-if="showButton" @click="expandContent" class="text-start fw-bold learn-more pb-0 mb-0">
                                     Μάθε περισσότερα</p>
                             </div>
-                            <p v-if="productAndExtras.price" class="text-start fw-bold m-1">{{ productAndExtras.price }}€</p>
+                            <p v-if="productAndExtras.price" class="text-start fw-bold m-1">{{ numberPriceToText(productAndExtras.price) }}€</p>
 
                         </div>
                     </div>
