@@ -12,7 +12,7 @@ const route = useRoute();
 const productId = ref();
 const productAndExtras = ref({});
 
-console.log("Product Modal price",price);
+console.log("Product Modal price", price);
 
 const { numberPriceToText } = price();
 
@@ -26,7 +26,7 @@ const { numberPriceToText } = price();
 //     productModalOpenOrClosed: Function,
 // })
 
-const closeTheModal = (()=>{
+const closeTheModal = (() => {
     router.push('../');
 });
 
@@ -39,6 +39,8 @@ const product = reactive({
     price: "",
     quantity: 1
 })
+
+const productGroupOfExtras = ref({});
 
 
 // modal
@@ -105,11 +107,11 @@ const calculateNumberPriceAndQuantity = (price, quantity) => {
 }
 
 const totalProductPrice = computed(() => {
-    if(product.price){
-        console.log("productModal.price=",product.price);
+    if (product.price) {
+        console.log("productModal.price=", product.price);
         return calculateNumberPriceAndQuantity(textPriceToNumber(product.price), productQuantity.value)
 
-    }else{
+    } else {
         return "";
     }
 })
@@ -134,7 +136,7 @@ const addToBasket = () => {
     closeTheModal();
 }
 
-onMounted(async ()=>{
+onMounted(async () => {
 
     document.body.classList.add('modal-open');
     // console.log(" route.params= ", route.params);
@@ -142,13 +144,16 @@ onMounted(async ()=>{
     // console.log("productId: " + productId.value);
     const { data } = await productAndExtrasData(productId.value);
     productAndExtras.value = data.data[0];
-    console.log("productAndExtras=",productAndExtras.value);
+    console.log("productAndExtras=", productAndExtras.value);
 
     product.id = productAndExtras.value.id;
     product.name = productAndExtras.value.name;
     product.description = productAndExtras.value.description;
     product.image = productAndExtras.value.image;
     product.price = productAndExtras.value.price;
+
+    productGroupOfExtras.value = productAndExtras.value.product_group_of_extra;
+    console.log("productGroupOfExtras=", productGroupOfExtras.value);
 
 
 })
@@ -167,29 +172,58 @@ onUnmounted(() => {
                 <!-- header -->
                 <div class="modal-header p-0 position-sticky top-0 end-0 " style="z-index:1">
 
-                        <div @click="closeTheModal" class="close "><font-awesome-icon icon="fa-solid fa-xmark" />
-                        </div>
+                    <div @click="closeTheModal" class="close "><font-awesome-icon icon="fa-solid fa-xmark" />
+                    </div>
 
 
                 </div>
                 <!-- body -->
                 <div class="modal-body p-0">
                     <div class="card">
-                        <img v-if="productAndExtras.image" :src="images_url +'products/'+ productAndExtras.image" class="card-img-top" alt="alt image">
+                        <img v-if="product.image" :src="images_url + 'products/' + product.image" class="card-img-top"
+                            alt="alt image">
                         <div class="card-body">
-                            <h5 v-if="productAndExtras.name" class="card-title fw-bold text-start ">{{ productAndExtras.name }}
+                            <h5 v-if="product.name" class="card-title fw-bold text-start ">{{ product.name }}
                             </h5>
-                            <div v-if="productAndExtras.description">
+                            <div v-if="product.description">
                                 <p ref="contentRef" class="card-text text-start pb-0 mb-0 description "
                                     old-class="hideExtraTextInDescription ? 'limitDescriptionCharacters pb-0 mb-0' : ''"
                                     :class="{ 'expanded pb-0 mb-0': isExpanded }" style="color:rgb(155, 155, 155)">{{
-                                        productAndExtras.description }}</p>
+                                        product.description }}</p>
                                 <p v-if="showButton" @click="expandContent" class="text-start fw-bold learn-more pb-0 mb-0">
                                     Μάθε περισσότερα</p>
                             </div>
-                            <p v-if="productAndExtras.price" class="text-start fw-bold m-1">{{ numberPriceToText(productAndExtras.price) }}€</p>
+                            <p v-if="product.price" class="text-start fw-bold m-1">{{ numberPriceToText(product.price) }}€
+                            </p>
 
                         </div>
+                        <!-- productGroup bootstap 5 radios with options -->
+                        <section class="w-auto p-3 group-of-extras">
+                            <div class="w-auto p-4 radio-group-of-extras ">
+                                <h2>Title</h2>
+                                <div class="form-check ">
+                                    <div class="d-flex bd-highlight mb-1 shadow p-3  bg-body rounded checkbox-success">
+
+                                        <label class="form-check-label  px-3 bd-highlight" for="exampleRadios1">
+                                            <input class="form-check-input px-2 bd-highlight" type="radio" name="exampleRadios"
+                                            id="exampleRadios1" value="option1">  Default radio1
+                                        </label>
+                                        <div class="ms-auto px-2 bd-highlight">0,00 €</div>
+                                    </div>
+                                </div>
+                                <div class="form-check ">
+                                    <div class="d-flex bd-highlight mb-1 shadow p-3  bg-body rounded checkbox-success">
+
+                                        <label class="form-check-label  px-3 bd-highlight" for="exampleRadios2">
+                                            <input class="form-check-input px-2 bd-highlight" type="radio" name="exampleRadios"
+                                            id="exampleRadios2" value="option2">  Default radio2
+                                        </label>
+                                        <div class="ms-auto px-2 bd-highlight">0,00 €</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
                     </div>
                 </div>
                 <!-- footer -->
@@ -209,11 +243,13 @@ onUnmounted(() => {
                                 </div>
                             </div>
                             <div class="col-6">
-                                <button v-if="totalProductPrice" @click="addToBasket" class="btn btn-success btn-sm add">Προσθήκη <b
-                                        >{{
-                                            totalProductPrice }}€</b></button>
+                                <button v-if="totalProductPrice" @click="addToBasket"
+                                    class="btn btn-success btn-sm add">Προσθήκη <b>{{
+                                        totalProductPrice }}€</b></button>
 
                             </div>
+
+
 
                         </div>
                     </div>
@@ -225,7 +261,7 @@ onUnmounted(() => {
 </template>
 
 
-<style scoped>
+<style >
 /* view more */
 .description {
     max-height: 3em;
@@ -304,4 +340,23 @@ onUnmounted(() => {
 a {
     text-decoration: none;
 }
+
+
+.group-of-extras {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background-color: rgb(244, 244, 244);
+
+}
+
+.radio-group-of-extras {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    /* background-color: white; */
+}
+
+
+
 </style>
