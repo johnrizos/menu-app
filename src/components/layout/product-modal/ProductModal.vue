@@ -6,7 +6,6 @@ import router from '@/router';
 import price from '../../../hooks/price/priceHook.js';
 import productAndExtrasData from '../../../http/product/product-api.js';
 
-const api_url = inject('api_url');
 const images_url = inject('images_url');
 const route = useRoute();
 const productId = ref();
@@ -14,21 +13,13 @@ const productAndExtras = ref({});
 
 console.log("Product Modal price", price);
 
-const { numberPriceToText } = price();
-
-// const props = defineProps({
-//     product_id: Number,
-//     title: String,
-//     description: String,
-//     img_url: String,
-//     price: String,
-//     addToTheCard: Function,
-//     productModalOpenOrClosed: Function,
-// })
+const { numberPriceToText,totalProductPrice } = price();
 
 const closeTheModal = (() => {
     router.push('../');
 });
+
+const radio = ref({});
 
 
 const product = reactive({
@@ -74,6 +65,11 @@ const expandContent = () => {
     showButton.value = false;
 };
 
+
+const totalPrice = computed(() => {
+    return totalProductPrice(product.price, productQuantity.value);
+});
+
 onMounted(() => {
     checkContentHeight();
 });
@@ -91,32 +87,6 @@ const subtractQuantityToProduct = () => {
 
     }
 }
-
-const textPriceToNumber = (price) => {
-
-    const replacedPrice = price.replace(",", ".");
-
-    const number = parseFloat(replacedPrice);
-    const roundedNumber = Math.round(number * 100) / 100;
-    return roundedNumber;
-}
-
-const calculateNumberPriceAndQuantity = (price, quantity) => {
-    return (price * quantity).toFixed(2).toString().replace(".", ",");
-
-}
-
-const totalProductPrice = computed(() => {
-    if (product.price) {
-        console.log("productModal.price=", product.price);
-        return calculateNumberPriceAndQuantity(textPriceToNumber(product.price), productQuantity.value)
-
-    } else {
-        return "";
-    }
-})
-
-
 
 const basket = useBasketStore();
 
@@ -243,9 +213,9 @@ onUnmounted(() => {
                                 </div>
                             </div>
                             <div class="col-6">
-                                <button v-if="totalProductPrice" @click="addToBasket"
+                                <button v-if="totalPrice" @click="addToBasket"
                                     class="btn btn-success btn-sm add">Προσθήκη <b>{{
-                                        totalProductPrice }}€</b></button>
+                                        totalPrice }}€</b></button>
 
                             </div>
 
