@@ -10,6 +10,11 @@ const images_url = inject('images_url');
 const route = useRoute();
 const productId = ref();
 const productAndExtras = ref({});
+const form = ref({});
+
+const displayForm = () => {
+    console.log("form=", form);
+}
 
 console.log("Product Modal price", price);
 
@@ -113,6 +118,7 @@ onMounted(async () => {
     productId.value = route.params.product || '';
     // console.log("productId: " + productId.value);
     const { data } = await productAndExtrasData(productId.value);
+    console.log("data=", data.data[0]);
     productAndExtras.value = data.data[0];
     console.log("productAndExtras=", productAndExtras.value);
 
@@ -132,6 +138,13 @@ onUnmounted(() => {
     document.body.classList.remove('modal-open');
 
 })
+
+// example of json product extra dat to add
+const jsonExample={
+    1:{extras:[1,2,3]},
+    2:{extras:[4]},
+    3:{extras:[5,6,7]},
+};
 
 </script>
 <template>
@@ -168,20 +181,20 @@ onUnmounted(() => {
 
                         </div>
                         <!-- productGroup bootstap 5 radios with options -->
-                        <section class="w-auto p-3 group-of-extras">
-                            <div class="w-auto p-4 radio-group-of-extras ">
-                                <h2>Title</h2>
-                                <div class="form-check ">
-                                    <div class="d-flex bd-highlight mb-1 shadow p-3  bg-body rounded checkbox-success">
 
-                                        <label class="form-check-label  px-3 bd-highlight" for="exampleRadios1">
-                                            <input class="form-check-input px-2 bd-highlight" type="radio" name="exampleRadios"
-                                            id="exampleRadios1" value="option1">  Default radio1
+                        <section v-if="productGroupOfExtras" v-for="productGroupOfExtra in productGroupOfExtras" class="w-auto p-3 group-of-extras" :key="productGroupOfExtra.id">
+                            <div class="w-auto p-4 radio-group-of-extras ">
+                                <h2>{{ productGroupOfExtra.name }}</h2>
+                                <div class="form-check ">
+                                    <div v-for="extra in productGroupOfExtra.extras" class="d-flex bd-highlight mb-1 shadow p-3  bg-body rounded checkbox-success" :key="extra.id">
+                                        <label  class="form-check-label  px-3 bd-highlight" :for="extra.id" >
+                                            <input @change="displayForm" v-model="form[productGroupOfExtra.id]" class="form-check-input px-2 bd-highlight" type="radio" :name="productGroupOfExtra.id"
+                                            id="exampleRadios1" :value="extra.id">  {{ extra.name }}
                                         </label>
-                                        <div class="ms-auto px-2 bd-highlight">0,00 €</div>
+                                        <div class="ms-auto px-2 bd-highlight">{{ extra.price_adjustment }} €</div>
                                     </div>
                                 </div>
-                                <div class="form-check ">
+                                <!-- <div class="form-check ">
                                     <div class="d-flex bd-highlight mb-1 shadow p-3  bg-body rounded checkbox-success">
 
                                         <label class="form-check-label  px-3 bd-highlight" for="exampleRadios2">
@@ -190,7 +203,7 @@ onUnmounted(() => {
                                         </label>
                                         <div class="ms-auto px-2 bd-highlight">0,00 €</div>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                         </section>
 
