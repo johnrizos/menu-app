@@ -62,7 +62,7 @@ console.log("updateProductModal works");
 initializeProductModal();
 const result = products.value.filter(product => product.product_id == id);
 
-console.log("result=",result[0]);
+// console.log("result=",result[0]);
     productModal.product_id = result[0].product_id
     productModal.title = result[0].product_name
     productModal.description = result[0].product_description
@@ -104,18 +104,17 @@ console.log("Category ID:", categoryId.value);
     const { data } = await allProductCategories(categoryId.value);
     console.log("data", data);
     pageProductsAndCategories.value = data.data[0];
-    console.log("pageProductsAndCategories", pageProductsAndCategories.value);
-
-    console.log("pageProductsAndCategories", pageProductsAndCategories.value);
+    
+    // console.log("pageProductsAndCategories", pageProductsAndCategories.value);
 
     page.id =  pageProductsAndCategories.value.id;
     page.name =  pageProductsAndCategories.value.name;
     page.description =  pageProductsAndCategories.value.description;
     page.image =  pageProductsAndCategories.value.image;
-    console.log("page", page);
+    // console.log("page", page);
 
     productCategories.value = pageProductsAndCategories.value.product_and_categories;
-    console.log("productCategories", productCategories.value);
+    // console.log("productCategories", productCategories.value);
 
 
 

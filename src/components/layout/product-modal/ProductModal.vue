@@ -18,7 +18,7 @@ const displayForm = () => {
 
 console.log("Product Modal price", price);
 
-const { numberPriceToText,totalProductPrice } = price();
+const { numberPriceToText, totalProductPrice } = price();
 
 const closeTheModal = (() => {
     router.push('../');
@@ -100,6 +100,8 @@ const subtractQuantityToProduct = () => {
     }
 }
 
+
+
 const basket = useBasketStore();
 
 const addToBasket = () => {
@@ -124,36 +126,36 @@ const displayElement = (e) => {
     const input = e.currentTarget.querySelector('input');
 
     // radio
-    if(input.type === 'radio'){
+    if (input.type === 'radio') {
         input.checked = true;
         formData.value.groupOfExtras[input.name] = input.value;
     }
     // checkbox 
-    if(input.type === 'checkbox'){
+    if (input.type === 'checkbox') {
         input.checked = !input.checked;
         const ischeckboxChecked = input.checked;
 
 
-        if(!formData.value.groupOfExtras[input.name]){
+        if (!formData.value.groupOfExtras[input.name]) {
             formData.value.groupOfExtras[input.name] = [];
         }
 
-        if(formData.value.groupOfExtras[input.name])
+        if (formData.value.groupOfExtras[input.name])
 
-        if(!ischeckboxChecked){
-            console.log("is not checked");
-           formData.value.groupOfExtras[input.name] =formData.value.groupOfExtras[input.name].filter(item => item !== input.value);
-        }
-        else{
-            console.log("is checked");
+            if (!ischeckboxChecked) {
+                console.log("is not checked");
+                formData.value.groupOfExtras[input.name] = formData.value.groupOfExtras[input.name].filter(item => item !== input.value);
+            }
+            else {
+                console.log("is checked");
 
-            formData.value.groupOfExtras[input.name].push(input.value);
-        }
+                formData.value.groupOfExtras[input.name].push(input.value);
+            }
 
-        if(formData.value.groupOfExtras[input.name].length === 0){
+        if (formData.value.groupOfExtras[input.name].length === 0) {
             delete formData.value.groupOfExtras[input.name];
         }
- 
+
 
     }
 
@@ -161,6 +163,16 @@ const displayElement = (e) => {
     displayForm();
 }
 
+
+const testIfDefaultExist = (defaultValue, value) => {
+    if (defaultValue === value) {
+        console.log(`matches defaultValue ${defaultValue} =  ${value} `);
+        return true;
+    }else{
+        console.log(`does not match Value ${defaultValue} !=  ${value}.`);
+        return false;
+    }
+}
 onMounted(async () => {
 
     document.body.classList.add('modal-open');
@@ -190,11 +202,14 @@ onUnmounted(() => {
 })
 
 // example of json product extra dat to add
-const jsonExample={
-    1:{extras:[1,2,3]},
-    2:{extras:[4]},
-    3:{extras:[5,6,7]},
+const jsonExample = {
+    1: { extras: [1, 2, 3] },
+    2: { extras: [4] },
+    3: { extras: [5, 6, 7] },
 };
+
+
+
 
 </script>
 <template>
@@ -222,24 +237,34 @@ const jsonExample={
                                 <p ref="contentRef" class="card-text text-start pb-0 mb-0 description "
                                     old-class="hideExtraTextInDescription ? 'limitDescriptionCharacters pb-0 mb-0' : ''"
                                     :class="{ 'expanded pb-0 mb-0': isExpanded }" style="color:rgb(155, 155, 155)">{{
-                                        product.description }}</p>
-                                <p v-if="showButton" @click="expandContent" class="text-start fw-bold learn-more pb-0 mb-0">
+        product.description }}</p>
+                                <p v-if="showButton" @click="expandContent"
+                                    class="text-start fw-bold learn-more pb-0 mb-0">
                                     Μάθε περισσότερα</p>
                             </div>
-                            <p v-if="product.price" class="text-start fw-bold m-1">{{ numberPriceToText(product.price) }}€
+                            <p v-if="product.price" class="text-start fw-bold m-1">{{ numberPriceToText(product.price)
+                                }}€
                             </p>
 
                         </div>
                         <!-- productGroup bootstap 5 radios with options -->
 
-                        <section v-if="productGroupOfExtras"  class="w-auto p-3 group-of-extras " >
-                            <div v-for="productGroupOfExtra in productGroupOfExtras" class="w-auto p-4 radio-group-of-extras " :key="productGroupOfExtra.id" >
+                        <section v-if="productGroupOfExtras" class="w-auto p-3 group-of-extras ">
+                            <div v-for="productGroupOfExtra in productGroupOfExtras"
+                                class="w-auto p-4 radio-group-of-extras " :key="productGroupOfExtra.id">
                                 <h2>{{ productGroupOfExtra.name }}</h2>
                                 <div class="form-check ">
-                                    <div v-for="extra in productGroupOfExtra.extras" class="d-flex bd-highlight mb-1 shadow p-3  bg-body rounded checkbox-success cursor-pointer" :key="extra.id" @click.stop.prevent="displayElement">
-                                        <label  class="form-check-label  px-3 bd-highlight pe-none" :for="`select-${extra.id}`" >
-                                            <input  v-model="form[productGroupOfExtra.id]" class="form-check-input px-2 bd-highlight pe-none" :type="(productGroupOfExtra.type==0) ? 'radio':'checkbox'" :name="productGroupOfExtra.id"
-                                            :id="`select-${extra.id}`" :value="extra.id">  {{ extra.name }}
+                                    <div v-for="extra in productGroupOfExtra.extras"
+                                        class="d-flex bd-highlight mb-1 shadow p-3  bg-body rounded checkbox-success cursor-pointer"
+                                        :key="extra.id" @click.stop.prevent="displayElement">
+                                        <label class="form-check-label  px-3 bd-highlight pe-none"
+                                            :for="`select-${extra.id}`">
+                                            <input v-model="form[productGroupOfExtra.id]"
+                                                class="form-check-input px-2 bd-highlight pe-none"
+                                                :type="(productGroupOfExtra.type == 0) ? 'radio' : 'checkbox'"
+                                                :checked="testIfDefaultExist(productGroupOfExtra['default_value'],extra.id) ? true : false"
+                                                :name="productGroupOfExtra.id" :id="`select-${extra.id}`"
+                                                :value="extra.id"> {{ extra.name }}
                                         </label>
                                         <div class="ms-auto px-2 bd-highlight">{{ extra.price_adjustment }} €</div>
                                     </div>
@@ -284,7 +309,7 @@ const jsonExample={
 </template>
 
 
-<style >
+<style>
 /* view more */
 .description {
     max-height: 3em;
@@ -380,8 +405,7 @@ a {
     /* background-color: white; */
 }
 
-.cursor-pointer{
-    cursor:pointer
+.cursor-pointer {
+    cursor: pointer
 }
-
 </style>
