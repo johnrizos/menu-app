@@ -10,8 +10,8 @@ function isLocalhost(url) {
 }
 
 const is_local_host = isLocalhost(window.location.href);
-console.log("is_local_host = ",is_local_host);
-console.log("window.location.href = ",window.location.href);
+// console.log("is_local_host = ",is_local_host);
+// console.log("window.location.href = ",window.location.href);
 
 let api_url = "https://api.trick.gr/";
 let images_url = "https://api.trick.gr/images/";
@@ -31,10 +31,10 @@ provide('images_url', images_url)
 
 const  basketStore = useBasketStore();
 onBeforeMount(()=>{
-  console.log("onBeforeMount works");
-console.log("localStorage.getItem() = ",localStorage.getItem("orders"));
+  // console.log("onBeforeMount works");
+// console.log("localStorage.getItem() = ",localStorage.getItem("orders"));
   if (localStorage.getItem("orders") && basketStore.basket.value == null) {
-    console.log("onBeforeMount store basket works");
+    // console.log("onBeforeMount store basket works");
         const storedOrder = JSON.parse(localStorage.getItem("orders"));
         basketStore.basket= storedOrder;
     }

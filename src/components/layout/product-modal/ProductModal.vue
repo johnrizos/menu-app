@@ -5,18 +5,24 @@ import { useBasketStore } from '../../../stores/basket';
 import router from '@/router';
 import price from '../../../hooks/price/priceHook.js';
 import productAndExtrasData from '../../../http/product/product-api.js';
+import { parse } from 'vue/compiler-sfc';
+
+// to do 
+// 1. check that  the extras is added in the form
+    // done a.default extras value was added in the form
+// 2. check tha that is hided the child extras
+// 3. check that everything added in the form is added in the basket
 
 const images_url = inject('images_url');
 const route = useRoute();
 const productId = ref();
 const productAndExtras = ref({});
-const form = ref({});
 
 const displayForm = () => {
-    // console.log("form=", form.value);
+    console.log("formData=", formData.value);
 }
 
-console.log("Product Modal price", price);
+// console.log("Product Modal price", price);
 
 const { numberPriceToText, totalProductPrice } = price();
 
@@ -28,10 +34,66 @@ const radio = ref({});
 
 const selectedRadio = ref([]);
 const selectedCheckbox = ref([]);
+
+// formdata for extras with the values and the text to add a description
 const formData = ref({
     "groupOfExtras": {},
     "text": ""
 });
+// data with all childGroupOfExtras
+let selectedChildGroupOfExtraIds = ref([]);
+
+// get the ids from the form data
+const getTheIdsfromFormData = () => {
+    selectedChildGroupOfExtraIds.value = [];
+    const groupOfExtras = formData.value.groupOfExtras;
+    console.log("formData=", formData.value);
+    for (const key in groupOfExtras) {
+        console.log("key=", key);
+        if(typeof groupOfExtras[key] === 'object'){
+            console.log("groupOfExtras[key]=", groupOfExtras[key]);
+            groupOfExtras[key].forEach(valueId => {
+                selectedChildGroupOfExtraIds.value.push(valueId);
+
+            });
+            for (const value in groupOfExtras[key]) {
+            }
+        }else{
+            selectedChildGroupOfExtraIds.value.push(groupOfExtras[key]);
+        }
+    }
+    console.log("selectedChildGroupOfExtraIds=", selectedChildGroupOfExtraIds.value);
+    displayForm();
+}
+
+const  hasAtLeastOneCommonValueinArrays = (array1, array2,has_parent) => {
+    console.log("it works");
+    console.log("array1=", array1);
+    console.log("array2=", array2);
+    if(!has_parent){
+        console.log("!has_parent");
+        return true;
+    }
+    if (!array1 || !array2) {
+        console.log("no array1 or array2");
+        return false;
+    }
+    for (let i = 0; i < array1.length; i++) {
+        const num1 = parseFloat(array1[i]); // Convert to number
+        if (!isNaN(num1)) {
+            for (let j = 0; j < array2.length; j++) {
+                const num2 = parseFloat(array2[j]); // Convert to number
+                if (!isNaN(num2) && num1 === num2) {
+                    return true;
+                }
+            }
+        }
+    }
+    console.log("no common values");
+    return false;
+}
+
+// product
 const product = reactive({
     id: null,
     name: "",
@@ -80,9 +142,9 @@ const totalPrice = computed(() => {
     return totalProductPrice(product.price, productQuantity.value);
 });
 
-onMounted(() => {
-    checkContentHeight();
-});
+// onMounted(() => {
+//     checkContentHeight();
+// });
 // end of view more
 
 const productQuantity = ref(1)
@@ -159,22 +221,31 @@ const displayElement = (e) => {
 
     }
 
-    console.log("formData=", formData.value);
+    // console.log("formData=", formData.value);
     displayForm();
+    getTheIdsfromFormData();
 }
 
 
-const testIfDefaultExist = (defaultValue, value) => {
+const testIfDefaultExist = (defaultValue, value, type, groupId) => {
     if (defaultValue === value) {
+
+        if(type === 0){
+            formData.value.groupOfExtras[groupId] = value;
+        }else if (type === 1){
+            formData.value.groupOfExtras[groupId].push(value);
+        }
         console.log(`matches defaultValue ${defaultValue} =  ${value} `);
+        getTheIdsfromFormData();
         return true;
     }else{
         console.log(`does not match Value ${defaultValue} !=  ${value}.`);
+        getTheIdsfromFormData();
         return false;
     }
 }
 onMounted(async () => {
-
+    checkContentHeight();
     document.body.classList.add('modal-open');
     // console.log(" route.params= ", route.params);
     productId.value = route.params.product || '';
@@ -250,8 +321,9 @@ const jsonExample = {
                         <!-- productGroup bootstap 5 radios with options -->
 
                         <section v-if="productGroupOfExtras" class="w-auto p-3 group-of-extras ">
-                            <div v-for="productGroupOfExtra in productGroupOfExtras"
-                                class="w-auto p-4 radio-group-of-extras " :key="productGroupOfExtra.id">
+                        <template v-for="productGroupOfExtra in productGroupOfExtras" :key="productGroupOfExtra.id">
+                            <div    v-show="hasAtLeastOneCommonValueinArrays(productGroupOfExtra.visible_with_extras,selectedChildGroupOfExtraIds,productGroupOfExtra.has_parent)" class="w-auto p-4 radio-group-of-extras " >
+                            <!-- <div  class="w-auto p-4 radio-group-of-extras " > -->
                                 <h2>{{ productGroupOfExtra.name }}</h2>
                                 <div class="form-check ">
                                     <div v-for="extra in productGroupOfExtra.extras"
@@ -259,10 +331,10 @@ const jsonExample = {
                                         :key="extra.id" @click.stop.prevent="displayElement">
                                         <label class="form-check-label  px-3 bd-highlight pe-none"
                                             :for="`select-${extra.id}`">
-                                            <input v-model="form[productGroupOfExtra.id]"
+                                            <input 
                                                 class="form-check-input px-2 bd-highlight pe-none"
                                                 :type="(productGroupOfExtra.type == 0) ? 'radio' : 'checkbox'"
-                                                :checked="testIfDefaultExist(productGroupOfExtra['default_value'],extra.id) ? true : false"
+                                                :checked="testIfDefaultExist(productGroupOfExtra['default_value'],extra.id,productGroupOfExtra.type,productGroupOfExtra.id) ? true : false"
                                                 :name="productGroupOfExtra.id" :id="`select-${extra.id}`"
                                                 :value="extra.id"> {{ extra.name }}
                                         </label>
@@ -270,6 +342,7 @@ const jsonExample = {
                                     </div>
                                 </div>
                             </div>
+                        </template>
                         </section>
 
                     </div>
