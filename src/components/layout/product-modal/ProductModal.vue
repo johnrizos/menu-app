@@ -45,24 +45,24 @@ let selectedChildGroupOfExtraIds = ref([]);
 
 // get the ids from the form data
 const getTheIdsfromFormData = () => {
-  selectedChildGroupOfExtraIds.value = [];
-  const groupOfExtras = formData.value.groupOfExtras;
-  console.log("formData=", formData.value);
-  for (const key in groupOfExtras) {
-    console.log("key=", key);
-    if (typeof groupOfExtras[key] === "object") {
-      console.log("groupOfExtras[key]=", groupOfExtras[key]);
-      groupOfExtras[key].forEach((valueId) => {
-        selectedChildGroupOfExtraIds.value.push(valueId);
-      });
-      for (const value in groupOfExtras[key]) {
-      }
-    } else {
-      selectedChildGroupOfExtraIds.value.push(groupOfExtras[key]);
-    }
-  }
-  console.log("selectedChildGroupOfExtraIds=", selectedChildGroupOfExtraIds.value);
-  displayForm();
+  // selectedChildGroupOfExtraIds.value = [];
+  // const groupOfExtras = formData.value.groupOfExtras;
+  // console.log("formData=", formData.value);
+  // for (const key in groupOfExtras) {
+  //   console.log("key=", key);
+  //   if (typeof groupOfExtras[key] === "object") {
+  //     console.log("groupOfExtras[key]=", groupOfExtras[key]);
+  //     groupOfExtras[key].forEach((valueId) => {
+  //       selectedChildGroupOfExtraIds.value.push(valueId);
+  //     });
+  //     for (const value in groupOfExtras[key]) {
+  //     }
+  //   } else {
+  //     selectedChildGroupOfExtraIds.value.push(groupOfExtras[key]);
+  //   }
+  // }
+  // console.log("selectedChildGroupOfExtraIds=", selectedChildGroupOfExtraIds.value);
+  // displayForm();
 };
 
 // product
@@ -154,7 +154,8 @@ const displayElement = (e) => {
   // console.log("e.target=", e.target);
   // console.log("e.currentTarget=", e.currentTarget);
   const input = e.currentTarget.querySelector("input");
-
+  console.log("input=", input);
+  return;
   // radio
   if (input.type === "radio") {
     input.checked = true;
@@ -211,8 +212,7 @@ const testIfDefaultExist = (defaultValue, value, type, groupId) => {
 const closeTheModal = () => {
   router.push("../");
 };
-onMo;
-unted(async () => {
+onMounted(async () => {
   checkContentHeight();
   document.body.classList.add("modal-open");
   // console.log(" route.params= ", route.params);
