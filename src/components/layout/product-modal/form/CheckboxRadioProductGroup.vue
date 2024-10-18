@@ -74,7 +74,7 @@ const updateFormData = () => {
     return acc;
   }, {});
 
-  formData.value = { ...checkboxData, ...radioData };
+  formData.value = JSON.stringify({ ...checkboxData, ...radioData });
   console.log("formData", formData.value);
 };
 

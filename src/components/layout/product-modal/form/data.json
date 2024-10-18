@@ -1,0 +1,196 @@
+[
+    {
+      "id": 1,
+      "name": "Ελληνικός μονός",
+      "description": "",
+      "price": "2.10",
+      "image": "6475b39226d34951cb70767239394d2208f47a5995d38.jpg",
+      "position": null,
+      "product_group_of_extra": [
+        {
+          "id": 2,
+          "product_id": 1,
+          "product_group_of_extra_id": 2,
+          "is_required": 1,
+          "is_available": null,
+          "position": 1,
+          "shop_id": 1,
+          "name": "Επιλέξτε ζάχαρη",
+          "description": "",
+          "is_active": 1,
+          "has_parent": 0,
+          "type": 0,
+          "default_value": 8,
+          "extras": [
+            {
+              "id": 8,
+              "shop_id": 1,
+              "product_group_of_extra_id": 2,
+              "name": "Σκέτος",
+              "description": "",
+              "is_active": 1,
+              "is_available": 1,
+              "price_adjustment": "0.00",
+              "position": null
+            },
+            {
+              "id": 9,
+              "shop_id": 1,
+              "product_group_of_extra_id": 2,
+              "name": "Με ολίγη",
+              "description": "",
+              "is_active": 1,
+              "is_available": 1,
+              "price_adjustment": "0.00",
+              "position": null
+            },
+            {
+              "id": 10,
+              "shop_id": 1,
+              "product_group_of_extra_id": 2,
+              "name": "Μέτριος",
+              "description": "",
+              "is_active": 1,
+              "is_available": 1,
+              "price_adjustment": "0.00",
+              "position": null
+            },
+            {
+              "id": 11,
+              "shop_id": 1,
+              "product_group_of_extra_id": 2,
+              "name": "Μέτριος προς γλυκό",
+              "description": "",
+              "is_active": 1,
+              "is_available": 1,
+              "price_adjustment": "0.00",
+              "position": null
+            },
+            {
+              "id": 12,
+              "shop_id": 1,
+              "product_group_of_extra_id": 2,
+              "name": "Γλυκός",
+              "description": "",
+              "is_active": 1,
+              "is_available": 1,
+              "price_adjustment": "0.00",
+              "position": null
+            },
+            {
+              "id": 13,
+              "shop_id": 1,
+              "product_group_of_extra_id": 2,
+              "name": "Πολύ γλυκός",
+              "description": "",
+              "is_active": 1,
+              "is_available": 1,
+              "price_adjustment": "0.00",
+              "position": null
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "product_id": 1,
+          "product_group_of_extra_id": 1,
+          "is_required": 0,
+          "is_available": null,
+          "position": 2,
+          "shop_id": 1,
+          "name": "Γλυκαντικά Πρόσθετα",
+          "description": "",
+          "is_active": 1,
+          "has_parent": 1,
+          "type": 1,
+          "default_value": null,
+          "visible_with_extras": [
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "extras": [
+            {
+              "id": 1,
+              "shop_id": 1,
+              "product_group_of_extra_id": 1,
+              "name": "Ζάχαρη Άσπρη",
+              "description": "",
+              "is_active": 1,
+              "is_available": 1,
+              "price_adjustment": "0.00",
+              "position": null
+            },
+            {
+              "id": 2,
+              "shop_id": 1,
+              "product_group_of_extra_id": 1,
+              "name": "Ζάχαρη Καστανή",
+              "description": "",
+              "is_active": 1,
+              "is_available": 1,
+              "price_adjustment": "0.00",
+              "position": null
+            },
+            {
+              "id": 3,
+              "shop_id": 1,
+              "product_group_of_extra_id": 1,
+              "name": "Μέλι",
+              "description": "",
+              "is_active": 1,
+              "is_available": 1,
+              "price_adjustment": "0.00",
+              "position": null
+            },
+            {
+              "id": 4,
+              "shop_id": 1,
+              "product_group_of_extra_id": 1,
+              "name": "Σιρόπι Καραμέλας",
+              "description": "",
+              "is_active": 1,
+              "is_available": 1,
+              "price_adjustment": "0.00",
+              "position": null
+            },
+            {
+              "id": 5,
+              "shop_id": 1,
+              "product_group_of_extra_id": 1,
+              "name": "Σιρόπι Σοκολάτας",
+              "description": "",
+              "is_active": 1,
+              "is_available": 1,
+              "price_adjustment": "0.00",
+              "position": null
+            },
+            {
+              "id": 6,
+              "shop_id": 1,
+              "product_group_of_extra_id": 1,
+              "name": "Σιρόπι Καρύδας",
+              "description": "",
+              "is_active": 1,
+              "is_available": 1,
+              "price_adjustment": "0.00",
+              "position": null
+            },
+            {
+              "id": 7,
+              "shop_id": 1,
+              "product_group_of_extra_id": 1,
+              "name": "Stevia",
+              "description": "",
+              "is_active": 1,
+              "is_available": 1,
+              "price_adjustment": "0.00",
+              "position": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
