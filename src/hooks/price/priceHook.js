@@ -5,6 +5,8 @@ export default function price() {
     }
 
     function textPriceToNumber(price) {
+        if(price === undefined || price === null || price === "") return 0;
+        if(typeof price === "number") return price
 
         const replacedPrice = price.replace(",", ".");
     

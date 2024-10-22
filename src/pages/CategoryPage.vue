@@ -126,7 +126,7 @@ console.log("Category ID:", categoryId.value);
 
 <template>
     <header-category></header-category>
-    Page name:{{ page.name }}
+    <!-- Page name:{{ page.name }} -->
     <div data-v-4feccd92="" class="container">
         <div data-v-4feccd92="" id="kt_subheader" class="subheader py-2 py-lg-4 subheader-transparent">
             <div data-v-4feccd92=""

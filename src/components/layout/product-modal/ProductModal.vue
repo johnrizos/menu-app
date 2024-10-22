@@ -22,48 +22,17 @@ import CheckboxRadioProductGroup from "./form/CheckboxRadioProductGroup.vue";
 // 2. check tha that is hided the child extras
 // 3. check that everything added in the form is added in the basket
 
+//--------- variables ------------
 const images_url = inject("images_url");
 const route = useRoute();
 const productId = ref();
 const productAndExtras = ref({});
-
-const displayForm = () => {
-  console.log("formData=", formData.value);
-};
-
-// console.log("Product Modal price", price);
-
 const { numberPriceToText, totalProductPrice } = price();
-
 // formdata for extras with the values and the text to add a description
-const formData = ref({
+const formData = reactive({
   groupOfExtras: {},
   text: "",
 });
-// data with all childGroupOfExtras
-let selectedChildGroupOfExtraIds = ref([]);
-
-// get the ids from the form data
-const getTheIdsfromFormData = () => {
-  // selectedChildGroupOfExtraIds.value = [];
-  // const groupOfExtras = formData.value.groupOfExtras;
-  // console.log("formData=", formData.value);
-  // for (const key in groupOfExtras) {
-  //   console.log("key=", key);
-  //   if (typeof groupOfExtras[key] === "object") {
-  //     console.log("groupOfExtras[key]=", groupOfExtras[key]);
-  //     groupOfExtras[key].forEach((valueId) => {
-  //       selectedChildGroupOfExtraIds.value.push(valueId);
-  //     });
-  //     for (const value in groupOfExtras[key]) {
-  //     }
-  //   } else {
-  //     selectedChildGroupOfExtraIds.value.push(groupOfExtras[key]);
-  //   }
-  // }
-  // console.log("selectedChildGroupOfExtraIds=", selectedChildGroupOfExtraIds.value);
-  // displayForm();
-};
 
 // product
 const product = reactive({
@@ -79,6 +48,64 @@ const productGroupOfExtras = ref({});
 
 // modal
 const parentDiv = ref(null);
+
+// view more
+const isExpanded = ref(false);
+const showButton = ref(false);
+const contentRef = ref(null);
+
+const extrasPrices = ref({});
+
+const basket = useBasketStore();
+
+
+
+const productQuantity = ref(1);
+const checkboxRadioDataInputs = reactive({})
+
+const totalPrice = computed(() => {
+  let extrasPrice = Number(0.00);
+  if (Object.entries(checkboxRadioDataInputs).length !== 0) {
+    for (const key in checkboxRadioDataInputs) {
+      if (productGroupOfExtras.value.length > 0) {
+        
+        productGroupOfExtras.value.forEach(productGroupOfExtra => {
+          console.log(`productGroupOfExtra.id: ${productGroupOfExtra.id} === key: ${key}`);
+          if (Number(productGroupOfExtra.id) === Number(key)) {
+            console.log("is the same")
+            if (productGroupOfExtra.extras && productGroupOfExtra.extras.length > 0) {
+              productGroupOfExtra.extras.forEach(extra => {
+                console.log("extra.id: ", extra.id);
+                
+                if (Number(extra.id) === Number(checkboxRadioDataInputs[key])) {
+                  console.log("extra.price_adjustment): ", extra.price_adjustment);
+                  extrasPrice += Number(extra.price_adjustment);
+                  // extrasPrice += Number(extra.price_adjustment).toFixed(2);
+                  console.log("extra.price: ", extra.price_adjustment);
+                }
+              })
+            }
+          }
+        }
+        )
+      }
+
+    }
+
+
+
+
+  }
+
+  console.log("extrasPrice: ", extrasPrice);
+
+  return totalProductPrice(Number(product.price) + Number(extrasPrice), productQuantity.value);
+});
+
+
+// ---------- functions -----------------
+
+
 const handleParentClick = (event) => {
   // Check if the clicked element is the parent div
   if (event.target === parentDiv.value) {
@@ -87,11 +114,6 @@ const handleParentClick = (event) => {
     console.log("Parent div clicked");
   }
 };
-
-// view more
-const isExpanded = ref(false);
-const showButton = ref(false);
-const contentRef = ref(null);
 
 const checkContentHeight = () => {
   if (contentRef.value) {
@@ -110,22 +132,10 @@ const expandContent = () => {
   showButton.value = false;
 };
 
-const totalPrice = computed(() => {
-  return totalProductPrice(product.price, productQuantity.value);
-});
-
-// onMounted(() => {
-//     checkContentHeight();
-// });
-// end of view more
-
-const productQuantity = ref(1);
 
 const addQuantityToProduct = () => {
   productQuantity.value++;
 };
-
-const extrasPrices = ref({});
 
 const subtractQuantityToProduct = () => {
   if (productQuantity.value > 1) {
@@ -133,7 +143,6 @@ const subtractQuantityToProduct = () => {
   }
 };
 
-const basket = useBasketStore();
 
 const addToBasket = () => {
   const order = {
@@ -150,68 +159,80 @@ const addToBasket = () => {
   closeTheModal();
 };
 
-const displayElement = (e) => {
-  // console.log("e.target=", e.target);
-  // console.log("e.currentTarget=", e.currentTarget);
-  const input = e.currentTarget.querySelector("input");
-  console.log("input=", input);
-  return;
-  // radio
-  if (input.type === "radio") {
-    input.checked = true;
-    formData.value.groupOfExtras[input.name] = input.value;
-  }
-  // checkbox
-  if (input.type === "checkbox") {
-    input.checked = !input.checked;
-    const ischeckboxChecked = input.checked;
 
-    if (!formData.value.groupOfExtras[input.name]) {
-      formData.value.groupOfExtras[input.name] = [];
-    }
+// Form submit handler
+const handleSubmit = (event) => {
+  // Create a FormData object from the form element
+  const form = new FormData(event.target);
 
-    if (formData.value.groupOfExtras[input.name])
-      if (!ischeckboxChecked) {
-        console.log("is not checked");
-        formData.value.groupOfExtras[input.name] = formData.value.groupOfExtras[
-          input.name
-        ].filter((item) => item !== input.value);
-      } else {
-        console.log("is checked");
+  // Clear formData before populating
+  Object.keys(formData).forEach(key => delete formData[key]);
 
-        formData.value.groupOfExtras[input.name].push(input.value);
-      }
-
-    if (formData.value.groupOfExtras[input.name].length === 0) {
-      delete formData.value.groupOfExtras[input.name];
-    }
+  // Iterate over FormData entries and populate the reactive formData object
+  for (const [key, value] of form.entries()) {
+    formData[key] = value;
   }
 
-  // console.log("formData=", formData.value);
-  displayForm();
-  getTheIdsfromFormData();
-};
+  // Handle checkboxes separately (FormData API doesn't handle unchecked checkboxes)
+  event.target.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+    formData[checkbox.name] = checkbox.checked;
+  });
 
-const testIfDefaultExist = (defaultValue, value, type, groupId) => {
-  if (defaultValue === value) {
-    if (type === 0) {
-      formData.value.groupOfExtras[groupId] = value;
-    } else if (type === 1) {
-      formData.value.groupOfExtras[groupId].push(value);
-    }
-    console.log(`matches defaultValue ${defaultValue} =  ${value} `);
-    getTheIdsfromFormData();
-    return true;
-  } else {
-    console.log(`does not match Value ${defaultValue} !=  ${value}.`);
-    getTheIdsfromFormData();
-    return false;
-  }
+  console.log('Form Submitted!', formData);
 };
 
 const closeTheModal = () => {
   router.push("../");
 };
+
+
+// initialize the checkboxRadioDataInputs with the default values - Parent
+const initializecheckboxRadioDataInputsWithDefaultValues = () => {
+  if (!productGroupOfExtras.value) {
+    // console.log("productGroupOfExtras.value is empty");
+    return;
+  }
+  if (!productGroupOfExtras.value.length) {
+    // console.log("productGroupOfExtras.value.length is empty");
+    return;
+  }
+  productGroupOfExtras.value.forEach((productGroupOfExtra) => {
+    if (productGroupOfExtra.default_value) {
+      checkboxRadioDataInputs[productGroupOfExtra.id] = productGroupOfExtra.default_value;
+    }
+  });
+};
+
+// handle the checkbox change - Parent
+const handleCheckboxChange = (event, product_group_of_extra_id) => {
+  console.log("product_group_of_extra_id: ", product_group_of_extra_id);
+  console.log("event: ", event.target);
+  console.log("name: ", event.target.name);
+  const name = event.target.name;
+  const checkboxesSelectors = document.querySelectorAll(`input[name="${name}"]:checked`)
+  const checkboxes = [];
+
+  checkboxesSelectors.forEach((checkboxesSelector) => {
+    checkboxes.push(Number(checkboxesSelector.value))
+  })
+  console.log("Selected checkboxes: ", checkboxes);
+
+
+  checkboxRadioDataInputs[product_group_of_extra_id] = checkboxes;
+  deleteEmptyKeys(checkboxRadioDataInputs);
+};
+
+// delete empty keys from the object - Parent
+const deleteEmptyKeys = (obj) => {
+  for (let key in obj) {
+    if (obj[key] === null || obj[key] === undefined || obj[key] === "" || obj[key].length === 0) {
+      delete obj[key];
+    }
+  }
+};
+
+
+// ---------- lifecycle hooks -----------------
 onMounted(async () => {
   checkContentHeight();
   document.body.classList.add("modal-open");
@@ -237,29 +258,13 @@ onUnmounted(() => {
   document.body.classList.remove("modal-open");
 });
 
-// example of json product extra dat to add
-const jsonExample = {
-  1: { extras: [1, 2, 3] },
-  2: { extras: [4] },
-  3: { extras: [5, 6, 7] },
-};
+
 </script>
 <template>
-  <div
-    ref="parentDiv"
-    @click="handleParentClick"
-    class="modal d-block"
-    id="exampleModal"
-    tabindex="-1"
-    aria-labelledby="exampleModalLabel"
-  >
-    <div
-      class="modal-dialog m-auto modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down"
-    >
-      <div
-        class="modal-content position-relative"
-        style="background-color: rgb(247, 247, 247)"
-      >
+  <div ref="parentDiv" @click="handleParentClick" class="modal d-block" id="exampleModal" tabindex="-1"
+    aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog m-auto modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+      <div class="modal-content position-relative" style="background-color: rgb(247, 247, 247)">
         <!-- header -->
         <div class="modal-header p-0 position-sticky top-0 end-0" style="z-index: 1">
           <div @click="closeTheModal" class="close">
@@ -269,31 +274,19 @@ const jsonExample = {
         <!-- body -->
         <div class="modal-body p-0">
           <div class="card">
-            <img
-              v-if="product.image"
-              :src="images_url + 'products/' + product.image"
-              class="card-img-top"
-              alt="alt image"
-            />
+            <img v-if="product.image" :src="images_url + 'products/' + product.image" class="card-img-top"
+              alt="alt image" />
             <div class="card-body">
               <h5 v-if="product.name" class="card-title fw-bold text-start">
                 {{ product.name }}
               </h5>
               <div v-if="product.description">
-                <p
-                  ref="contentRef"
-                  class="card-text text-start pb-0 mb-0 description"
+                <p ref="contentRef" class="card-text text-start pb-0 mb-0 description"
                   old-class="hideExtraTextInDescription ? 'limitDescriptionCharacters pb-0 mb-0' : ''"
-                  :class="{ 'expanded pb-0 mb-0': isExpanded }"
-                  style="color: rgb(155, 155, 155)"
-                >
+                  :class="{ 'expanded pb-0 mb-0': isExpanded }" style="color: rgb(155, 155, 155)">
                   {{ product.description }}
                 </p>
-                <p
-                  v-if="showButton"
-                  @click="expandContent"
-                  class="text-start fw-bold learn-more pb-0 mb-0"
-                >
+                <p v-if="showButton" @click="expandContent" class="text-start fw-bold learn-more pb-0 mb-0">
                   Μάθε περισσότερα
                 </p>
               </div>
@@ -301,43 +294,30 @@ const jsonExample = {
                 {{ numberPriceToText(product.price) }}€
               </p>
             </div>
-            <!-- productGroup bootstap 5 radios with options -->
-            <CheckboxRadioProductGroup
-              :productGroupOfExtras="productGroupOfExtras"
-              :selectedChildGroupOfExtraIds="selectedChildGroupOfExtraIds"
-              :testIfDefaultExist="testIfDefaultExist"
-              :displayElement="displayElement"
-            ></CheckboxRadioProductGroup>
+            <form @submit.prevent="handleSubmit">
+              <!-- productGroup bootstap 5 radios with options -->
+              <CheckboxRadioProductGroup :productGroupOfExtras="productGroupOfExtras"
+                :initializecheckboxRadioDataInputsWithDefaultValues="initializecheckboxRadioDataInputsWithDefaultValues"
+                :handleCheckboxChange="handleCheckboxChange" :checkboxRadioDataInputs="checkboxRadioDataInputs">
+              </CheckboxRadioProductGroup>
+            </form>
           </div>
         </div>
         <!-- footer -->
-        <div
-          class="modal-footer position-sticky bottom-0 end-0 bg-white"
-          style="z-index: 1"
-        >
+        <div class="modal-footer position-sticky bottom-0 end-0 bg-white p-1" style="z-index: 1">
           <div class="container">
             <div class="row align-items-center">
               <div class="col-6">
                 <div class="input-group">
-                  <span
-                    @click="subtractQuantityToProduct"
-                    class="input-group-text plusAndMinusButton"
-                    ><font-awesome-icon icon="fa-solid fa-minus"
-                  /></span>
+                  <span @click="subtractQuantityToProduct"
+                    class="input-group-text plusAndMinusButton"><font-awesome-icon icon="fa-solid fa-minus" /></span>
                   <span class="input-group-text bg-white">{{ productQuantity }}</span>
-                  <span
-                    @click="addQuantityToProduct"
-                    class="input-group-text plusAndMinusButton"
-                    ><font-awesome-icon icon="fa-solid fa-plus"
-                  /></span>
+                  <span @click="addQuantityToProduct" class="input-group-text plusAndMinusButton"><font-awesome-icon
+                      icon="fa-solid fa-plus" /></span>
                 </div>
               </div>
               <div class="col-6">
-                <button
-                  v-if="totalPrice"
-                  @click="addToBasket"
-                  class="btn btn-success btn-sm add"
-                >
+                <button v-if="totalPrice" @click="addToBasket" class="btn btn-success btn-sm add">
                   Προσθήκη <b>{{ totalPrice }}€</b>
                 </button>
               </div>
