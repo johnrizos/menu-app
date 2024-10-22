@@ -2,24 +2,27 @@
   <div>
     <h1>{{ product.name }}</h1>
     <!-- Checkbox Groups -->
-    <div v-for="productGroupOfExtra in productGroupOfExtras" :key="productGroupOfExtra.id">
-      <h2>{{ productGroupOfExtra.name }}</h2>
-      <div>
-        <div v-for=" extra in productGroupOfExtra.extras" :key="extra.id">
-          <label v-if="productGroupOfExtra.type === 1">
-            <input :name="`checkbox-${productGroupOfExtra.id}`" type="checkbox" :value="extra.id"
-              @change="(event) => handleCheckboxChange(event, productGroupOfExtra.id)">
-            Checkbox {{ extra.name }}
-          </label>
-          <label v-else-if="productGroupOfExtra.type === 0">
-            <input :name="`checkbox-${productGroupOfExtra.id}`" type="radio" :value="extra.id"
-              @change="(event) => handleCheckboxChange(event, productGroupOfExtra.id)">
-            Checkbox {{ extra.name }}
-          </label>
+    <template v-for="productGroupOfExtra in productGroupOfExtras" :key="productGroupOfExtra.id">
+      
+      <div v-if="checkIfGroupIsVisible(productGroupOfExtra,extrasArray)">
+        <h2>{{ productGroupOfExtra.name }}</h2>
+        <div>
+          <!-- all inputs for each group  type 1 is checkbox and 0 radio-->
+          <div v-for=" extra in productGroupOfExtra.extras" :key="extra.id">
+            <label >
+              <input :name="`checkbox-${productGroupOfExtra.id}`" :type="(productGroupOfExtra.type === 1) ? 'checkbox' : 'radio'" :value="extra.id"
+                @change="(event) => handleCheckboxChange(event, productGroupOfExtra.id)" :checked="extra.id === productGroupOfExtra.default_value">
+              Checkbox {{ extra.name }}
+            </label>
+            <!-- <label v-else-if="productGroupOfExtra.type === 0">
+              <input :name="`checkbox-${productGroupOfExtra.id}`" type="radio" :value="extra.id"
+                @change="(event) => handleCheckboxChange(event, productGroupOfExtra.id)" :checked="extra.id === productGroupOfExtra.default_value">
+              Checkbox {{ extra.name }}
+            </label> -->
+          </div>
         </div>
       </div>
-    </div>
-
+    </template>
     <button @click="submitForm">Submit</button>
   </div>
 </template>
@@ -33,6 +36,34 @@ const formData = reactive({})
 
 
 console.log("formData", formData);
+
+const checkIfGroupIsVisible = (productGroupOfExtra,extrasArray) => {
+  if (productGroupOfExtra.has_parent === 0) {
+    console.log("checkIfGroupIsVisible is true");
+    
+    return true;
+  }
+  if(productGroupOfExtra.visible_with_extras.length === 0 || extrasArray.length === 0){
+    console.log("checkIfGroupIsVisible is false 1");
+
+    return false;
+  }
+
+for (let i = 0; i < productGroupOfExtra.visible_with_extras.length; i++) {
+  console.log("extrasArray: ", extrasArray);
+  console.log("productGroupOfExtra.visible_with_extras[i]: ", productGroupOfExtra.visible_with_extras[i]);
+  console.log("test: ", extrasArray.includes(productGroupOfExtra.visible_with_extras[i])); 
+  
+    if (extrasArray.includes(productGroupOfExtra.visible_with_extras[i])) {
+      console.log("checkIfGroupIsVisible is true");
+
+      return true;
+    }
+  }
+  console.log("checkIfGroupIsVisible is false 2");
+
+  return false;
+};
 
 
 
@@ -48,9 +79,19 @@ console.log("productGroupOfExtras", productGroupOfExtras.value)
 
 const checkboxSelections = {};
 
+const initializeFormDataWithDefaultValues = () => {
+  productGroupOfExtras.value.forEach((productGroupOfExtra) => {
+    if (productGroupOfExtra.default_value) {
+      formData[productGroupOfExtra.id] = productGroupOfExtra.default_value;
+    }
+  });
+};
+
+initializeFormDataWithDefaultValues();
+console.log("formData", formData);
+
+
 const handleCheckboxChange = (event, product_group_of_extra_id) => {
-
-
   console.log("product_group_of_extra_id: ", product_group_of_extra_id);
   console.log("event: ", event.target);
   console.log("name: ", event.target.name);
@@ -59,7 +100,7 @@ const handleCheckboxChange = (event, product_group_of_extra_id) => {
   const checkboxes = [];
 
   checkboxesSelectors.forEach((checkboxesSelector) => {
-    checkboxes.push(checkboxesSelector.value)
+    checkboxes.push(Number(checkboxesSelector.value))
   })
   console.log("Selected checkboxes: ", checkboxes);
 
@@ -98,7 +139,7 @@ watch(formData, async (newformData, oldformData) => {
 
 });
 
-
+// array with all the selected extras
 const extrasArray = computed(() => {
 
   return extractValuesToArray(formData);

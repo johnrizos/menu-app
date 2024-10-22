@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watchEffect, defineProps, toRefs, watch } from "vue";
+import { ref, watchEffect,  toRefs, watch, reactive, computed  } from "vue";
 
 const props = defineProps({
   productGroupOfExtras: {
@@ -20,128 +20,156 @@ const props = defineProps({
   },
 });
 
-const { productGroupOfExtras } = toRefs(props);
-console.log("productGroupOfExtras=", productGroupOfExtras);
+console.log("props.productGroupOfExtras:", props.productGroupOfExtras.value);
+const  productGroupOfExtras  = ref([]);
+productGroupOfExtras.value = props.productGroupOfExtras.value;
 
-const formData = ref({});
-const checkboxValues = ref({});
-const radioValues = ref({});
+// variables
+const formData = reactive({})
 
-const initializeValues = () => {
-  console.log("initializeValues");
-  console.log("checkboxValues", checkboxValues.value);
-  console.log("radioValues", radioValues.value);
-  const data = productGroupOfExtras.value;
-  for (const categoryId in data) {
-    const category = data[categoryId];
-    if (category.type === 1) {
-      // Checkbox group
-      checkboxValues.value[categoryId] = {};
-      category.extras.forEach((extra) => {
-        checkboxValues.value[categoryId][extra.id] =
-          category.default_value?.includes(extra.id) || false;
-      });
-    } else if (category.type === 0 && Object.keys(radioValues.value).length > 0) {
-      console.log("radioValues.value",radioValues.value);
-      // Radio group
-      // radioValues.value[categoryId] = category.default_value || null;
-      console.log("radioValues.value 2",radioValues.value);
+// array with all the selected extras
+const extrasArray = computed(() => {
 
-    }
-  }
-  updateFormData();
-};
-
-const updateFormData = () => {
-  console.log("updateFormData");
-  console.log("Array.isArray(checkboxValues.value",Array.isArray(checkboxValues.value));
-  console.log("checkboxValues", checkboxValues.value);
-  console.log("radioValues", radioValues.value);
-  const checkboxData = Object.keys(checkboxValues.value).reduce((acc, categoryId) => {
-    const selectedIds = Object.keys(checkboxValues.value[categoryId]).filter(
-      (itemId) => checkboxValues.value[categoryId][itemId]
-    );
-    if (selectedIds.length > 0) {
-      acc[categoryId] = selectedIds.map(Number);
-    }
-    return acc;
-  }, {});
-
-  const radioData = Object.keys(radioValues.value).reduce((acc, categoryId) => {
-    if (radioValues.value[categoryId] !== null) {
-      acc[categoryId] = [radioValues.value[categoryId]];
-    }
-    return acc;
-  }, {});
-
-  formData.value = JSON.stringify({ ...checkboxData, ...radioData });
-  console.log("formData", formData.value);
-};
-
-watchEffect(() => {
-  updateFormData();
+return extractValuesToArray(formData);
 });
 
-watch(productGroupOfExtras, initializeValues, { immediate: true, deep: true });
+
+
+// functions
+const initializeFormDataWithDefaultValues = () => {
+  if(!productGroupOfExtras.value){
+    console.log("productGroupOfExtras.value is empty");
+    return;
+  }
+  productGroupOfExtras.value.forEach((productGroupOfExtra) => {
+    if (productGroupOfExtra.default_value) {
+      formData[productGroupOfExtra.id] = productGroupOfExtra.default_value;
+    }
+  });
+};
+
+
+initializeFormDataWithDefaultValues();
+console.log("formData", formData);
+
+
+
+const handleCheckboxChange = (event, product_group_of_extra_id) => {
+  console.log("product_group_of_extra_id: ", product_group_of_extra_id);
+  console.log("event: ", event.target);
+  console.log("name: ", event.target.name);
+  const name = event.target.name;
+  const checkboxesSelectors = document.querySelectorAll(`input[name="${name}"]:checked`)
+  const checkboxes = [];
+
+  checkboxesSelectors.forEach((checkboxesSelector) => {
+    checkboxes.push(Number(checkboxesSelector.value))
+  })
+  console.log("Selected checkboxes: ", checkboxes);
+
+
+  formData[product_group_of_extra_id] = checkboxes;
+
+};
+
+
+
+function extractValuesToArray(obj) {
+  let finalArray = [];
+
+  // Iterate through the object keys
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      // If the value is an array, concatenate it to the final array
+      if (Array.isArray(obj[key])) {
+        finalArray = finalArray.concat(obj[key]);
+      } else {
+        // If it's not an array, simply push the value to the final array
+        finalArray.push(obj[key]);
+      }
+    }
+  }
+
+  return finalArray;
+}
+
+const checkIfGroupIsVisible = (productGroupOfExtra,extrasArray) => {
+  if (productGroupOfExtra.has_parent === 0) {
+    console.log("checkIfGroupIsVisible is true");
+    
+    return true;
+  }
+  if(productGroupOfExtra.visible_with_extras.length === 0 || extrasArray.length === 0){
+    console.log("checkIfGroupIsVisible is false 1");
+
+    return false;
+  }
+
+for (let i = 0; i < productGroupOfExtra.visible_with_extras.length; i++) {
+  console.log("extrasArray: ", extrasArray);
+  console.log("productGroupOfExtra.visible_with_extras[i]: ", productGroupOfExtra.visible_with_extras[i]);
+  console.log("test: ", extrasArray.includes(productGroupOfExtra.visible_with_extras[i])); 
+  
+    if (extrasArray.includes(productGroupOfExtra.visible_with_extras[i])) {
+      console.log("checkIfGroupIsVisible is true");
+
+      return true;
+    }
+  }
+  console.log("checkIfGroupIsVisible is false 2");
+
+  return false;
+};
+
+
+watch(formData, async (newformData, oldformData) => {
+  console.log("newformData: ", newformData);
+
+});
+
+// Watcher for the computed extrasArray
+watch(extrasArray, (newExtrasArray) => {
+  console.log("extrasArray has changed: ", newExtrasArray);
+});
 watch(
-  radioValues,
-  (newVal) => {
-    console.log("radioValues changed:", newVal);
+  () => props.productGroupOfExtras,
+  (newData) => {
+    console.log("newData", newData);
+    productGroupOfExtras.value = newData;
+    // internalData.value = newData;
   },
-  { deep: true }
+  { immediate: true } // Run the watcher immediately to capture any initial value
 );
 
-// const hasAtLeastOneCommonValueinArrays = (array1, array2, has_parent) => {
-//   if (!has_parent) {
-//     return true;
-//   }
-//   if (!array1 || !array2) {
-//     return false;
-//   }
-//   for (let i = 0; i < array1.length; i++) {
-//     const num1 = parseFloat(array1[i]); // Convert to number
-//     if (!isNaN(num1)) {
-//       for (let j = 0; j < array2.length; j++) {
-//         const num2 = parseFloat(array2[j]); // Convert to number
-//         if (!isNaN(num2) && num1 === num2) {
-//           return true;
-//         }
-//       }
-//     }
-//   }
-//   return false;
-// };
+
 </script>
 
 <template>
-  <section v-if="productGroupOfExtras" class="w-auto p-3 group-of-extras">
+  <section v-if="productGroupOfExtras.length > 0" class="w-auto p-3 group-of-extras">
     <template
       v-for="productGroupOfExtra in productGroupOfExtras"
       :key="productGroupOfExtra['product_group_of_extra_id']"
     >
-      <!--         v-if="!productGroupOfExtra.has_parent || productGroupOfExtra.default_value"
- -->
-      <div class="w-auto p-4 radio-group-of-extras">
+      <div v-if="checkIfGroupIsVisible(productGroupOfExtra,extrasArray)" class="w-auto p-4 radio-group-of-extras">
         <h2>{{ productGroupOfExtra.name }}</h2>
         <div class="form-check">
-          <!-- Checkbox -->
+          <!-- radio type is 0 and Checkbox type is 1  -->
           <div
-            v-if="productGroupOfExtra.type == 1"
             v-for="extra in productGroupOfExtra.extras"
-            class="bd-highlight mb-1 shadow p-3 bg-body rounded checkbox-success"
+            class="bd-highlight mb-1 shadow px-3 bg-body rounded checkbox-success"
             :key="extra.id"
           >
             <label
-              class="form-check-label ps-3 bd-highlight pe-1 d-flex justify-content-between cursor-pointer"
-              :for="`checkbox-${productGroupOfExtra['product_group_of_extra_id']}-${extra.id}`"
+              class="form-check-label ps-3 bd-highlight pe-1 py-3 d-flex justify-content-between cursor-pointer"
+              :for="`item-${productGroupOfExtra['product_group_of_extra_id']}-${extra.id}`"
             >
               <input
                 class="form-check-input px-2 bd-highlight pe-none"
-                type="checkbox"
-                :id="`checkbox-${productGroupOfExtra['product_group_of_extra_id']}-${extra.id}`"
+                :type="(productGroupOfExtra.type === 1) ? 'checkbox' : 'radio'"
+                :id="`item-${productGroupOfExtra['product_group_of_extra_id']}-${extra.id}`"
                 :value="extra.id"
-                :name="`checkbox-${productGroupOfExtra['product_group_of_extra_id']}`"
-                v-model="checkboxValues[productGroupOfExtra['product_group_of_extra_id']][extra.id]"
+                :name="`item-${productGroupOfExtra['product_group_of_extra_id']}`"
+                @change="(event) => handleCheckboxChange(event, productGroupOfExtra.id)" :checked="extra.id === productGroupOfExtra.default_value"
 
               />
                 <!-- v-model="checkboxValues[productGroupOfExtra['product_group_of_extra_id']][extra.id]" -->
@@ -152,7 +180,7 @@ watch(
             </label>
           </div>
           <!-- Radio -->
-          <div
+          <!-- <div
             v-if="productGroupOfExtra.type == 0"
             v-for="extra in productGroupOfExtra.extras"
             class="bd-highlight mb-1 shadow p-3 bg-body rounded checkbox-success"
@@ -168,14 +196,14 @@ watch(
                 :id="`radio-${productGroupOfExtra['product_group_of_extra_id']}-${extra.id}`"
                 :value="extra.id"
                 :name="`radio-${productGroupOfExtra['product_group_of_extra_id']}`"
-                v-model="radioValues[productGroupOfExtra['product_group_of_extra_id']]"
+                
               />
               <span class="px-2">{{ extra.name }}</span>
               <div class="ms-auto px-2 bd-highlight">
                 {{ extra.price_adjustment }}&nbsp;€
               </div>
             </label>
-          </div>
+          </div> -->
         </div>
       </div>
     </template>
