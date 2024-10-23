@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watchEffect,  toRefs, watch, reactive, computed  } from "vue";
+import price from "../../../../hooks/price/priceHook.js";
 
 const props = defineProps({
   productGroupOfExtras: {
@@ -21,6 +22,8 @@ const props = defineProps({
 });
 
 // console.log("props.productGroupOfExtras:", props.productGroupOfExtras.value);
+const { numberPriceToText} = price();
+
 const  productGroupOfExtras  = ref([]);
 const  initializecheckboxRadioDataInputsWithDefaultValues = props.initializecheckboxRadioDataInputsWithDefaultValues;
 const  handleCheckboxChange  = props.handleCheckboxChange;
@@ -141,7 +144,7 @@ watch(
               />
               <span class="px-2">{{ extra.name }}</span>
               <div class="ms-auto px-2 bd-highlight">
-                {{ extra.price_adjustment }}&nbsp;€
+                {{ numberPriceToText(extra.price_adjustment) }}&nbsp;€
               </div>
             </label>
           </div>

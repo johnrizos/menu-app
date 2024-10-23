@@ -66,24 +66,35 @@ const checkboxRadioDataInputs = reactive({})
 const totalPrice = computed(() => {
   let extrasPrice = Number(0.00);
   if (Object.entries(checkboxRadioDataInputs).length !== 0) {
+    console.log("checkboxRadioDataInputs: ", checkboxRadioDataInputs);
+    
     for (const key in checkboxRadioDataInputs) {
       if (productGroupOfExtras.value.length > 0) {
-        
+        console.log("key: ", key);
         productGroupOfExtras.value.forEach(productGroupOfExtra => {
-          console.log(`productGroupOfExtra.id: ${productGroupOfExtra.id} === key: ${key}`);
+          // console.log(`productGroupOfExtra.id: ${productGroupOfExtra.id} === key: ${key}`);
+          // check if the productGroupOfExtra.id is the same as the key of the checkboxRadioDataInputs
           if (Number(productGroupOfExtra.id) === Number(key)) {
             console.log("is the same")
             if (productGroupOfExtra.extras && productGroupOfExtra.extras.length > 0) {
+              console.log("key: work properly ", key);
+              
               productGroupOfExtra.extras.forEach(extra => {
-                console.log("extra.id: ", extra.id);
+                console.log("checkboxRadioDataInputs[key]: IS ARRAY:  ", Array.isArray(checkboxRadioDataInputs[key]));
+                console.log("checkboxRadioDataInputs[key]: type:  ", typeof checkboxRadioDataInputs[key]);
+                console.log("checkboxRadioDataInputs[key]: value:  ", checkboxRadioDataInputs[key]);
                 
-                if (Number(extra.id) === Number(checkboxRadioDataInputs[key])) {
-                  console.log("extra.price_adjustment): ", extra.price_adjustment);
+                 
+                if ( checkboxRadioDataInputs[key].includes(Number(extra.id))) {
+                  console.log(`extra.price_adjustment):${ Number(extra.id)} === ${ Number(checkboxRadioDataInputs[key])} `, extra.price_adjustment);
                   extrasPrice += Number(extra.price_adjustment);
                   // extrasPrice += Number(extra.price_adjustment).toFixed(2);
                   console.log("extra.price: ", extra.price_adjustment);
                 }
               })
+            }else{
+              console.log("something went wrong with the extras");
+              
             }
           }
         }
@@ -198,16 +209,16 @@ const initializecheckboxRadioDataInputsWithDefaultValues = () => {
   }
   productGroupOfExtras.value.forEach((productGroupOfExtra) => {
     if (productGroupOfExtra.default_value) {
-      checkboxRadioDataInputs[productGroupOfExtra.id] = productGroupOfExtra.default_value;
+      checkboxRadioDataInputs[productGroupOfExtra.id] = [productGroupOfExtra.default_value];
     }
   });
 };
 
 // handle the checkbox change - Parent
 const handleCheckboxChange = (event, product_group_of_extra_id) => {
-  console.log("product_group_of_extra_id: ", product_group_of_extra_id);
-  console.log("event: ", event.target);
-  console.log("name: ", event.target.name);
+  // console.log("product_group_of_extra_id: ", product_group_of_extra_id);
+  // console.log("event: ", event.target);
+  // console.log("name: ", event.target.name);
   const name = event.target.name;
   const checkboxesSelectors = document.querySelectorAll(`input[name="${name}"]:checked`)
   const checkboxes = [];
@@ -215,7 +226,7 @@ const handleCheckboxChange = (event, product_group_of_extra_id) => {
   checkboxesSelectors.forEach((checkboxesSelector) => {
     checkboxes.push(Number(checkboxesSelector.value))
   })
-  console.log("Selected checkboxes: ", checkboxes);
+  // console.log("Selected checkboxes: ", checkboxes);
 
 
   checkboxRadioDataInputs[product_group_of_extra_id] = checkboxes;
