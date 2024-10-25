@@ -13,8 +13,8 @@ const is_local_host = isLocalhost(window.location.href);
 // console.log("is_local_host = ",is_local_host);
 // console.log("window.location.href = ",window.location.href);
 
-let api_url = "https://api.trick.gr/";
-let images_url = "https://api.trick.gr/images/";
+let api_url = "https://api.favour.gr/";
+let images_url = "https://api.favour.gr/images/";
 
 if (is_local_host) {
   api_url = "http://localhost/menu/api/"
@@ -26,7 +26,7 @@ if (is_local_host) {
 provide('api_url', api_url)
 provide('images_url', images_url)
 
-// api_url = "https://api.trick.gr/";
+// api_url = "https://api.favour.gr/";
 
 
 const  basketStore = useBasketStore();

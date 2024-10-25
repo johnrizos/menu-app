@@ -10,15 +10,15 @@ function isLocalhost(url) {
 
 const is_local_host = isLocalhost(window.location.href);
 
-let api_url = "https://api.trick.gr/";
-let images_url = "https://api.trick.gr/images/";
+let api_url = "https://api.favour.gr/";
+let images_url = "https://api.favour.gr/images/";
 
 if (is_local_host) {
   api_url = "http://localhost/menu/api/"
   images_url = "http://localhost/menu/api/images/"
 }
 
-// api_url = "https://api.trick.gr/";
+// api_url = "https://api.favour.gr/";
 
 export default {
     name: 'App',
