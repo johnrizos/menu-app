@@ -143,7 +143,7 @@ watch(
 
               />
               <span class="px-2">{{ extra.name }}</span>
-              <div class="ms-auto px-2 bd-highlight">
+              <div v-if="Number(extra.price_adjustment) !== 0" class="ms-auto px-2 bd-highlight">
                 {{ numberPriceToText(extra.price_adjustment) }}&nbsp;€
               </div>
             </label>
@@ -153,7 +153,7 @@ watch(
       </div>
     </template>
   </section>
-  <pre>{{ checkboxRadioDataInputs }}</pre>
+  <!-- <pre>{{ checkboxRadioDataInputs }}</pre> -->
 </template>
 
 <style scoped>

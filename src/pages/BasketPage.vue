@@ -3,7 +3,7 @@ import { ref, watch, onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
 import { useBasketStore } from '../stores/basket';
 import router from '@/router';
-import priceHook from '../hooks/price/priceHook.js';
+import priceHook from '@/hooks/price/priceHook.js';
 import goBackOrHome from '../hooks/navigation/goBackOrHome.js';
 
 const basketStore = useBasketStore();
@@ -13,7 +13,7 @@ const proceedToCheckOut = (() => {
 });
 
 
-const [textPriceToNumber, calculateNumberPriceAndQuantity, totalProductPrice] = priceHook();
+const {textPriceToNumber, calculateNumberPriceAndQuantity, totalProductPrice} = priceHook();
 
 console.log("test", textPriceToNumber("10,23"));
 

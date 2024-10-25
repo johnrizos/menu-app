@@ -27,12 +27,13 @@ const images_url = inject("images_url");
 const route = useRoute();
 const productId = ref();
 const productAndExtras = ref({});
-const { numberPriceToText, totalProductPrice } = price();
+const { numberPriceToText, totalProductPrice, priceForExtras } = price();
 // formdata for extras with the values and the text to add a description
 const formData = reactive({
   groupOfExtras: {},
   text: "",
 });
+  const extraDetails = ref("");
 
 // product
 const product = reactive({
@@ -53,65 +54,23 @@ const parentDiv = ref(null);
 const isExpanded = ref(false);
 const showButton = ref(false);
 const contentRef = ref(null);
-
-const extrasPrices = ref({});
-
 const basket = useBasketStore();
-
-
-
 const productQuantity = ref(1);
 const checkboxRadioDataInputs = reactive({})
 
-const totalPrice = computed(() => {
-  let extrasPrice = Number(0.00);
-  if (Object.entries(checkboxRadioDataInputs).length !== 0) {
-    console.log("checkboxRadioDataInputs: ", checkboxRadioDataInputs);
-    
-    for (const key in checkboxRadioDataInputs) {
-      if (productGroupOfExtras.value.length > 0) {
-        console.log("key: ", key);
-        productGroupOfExtras.value.forEach(productGroupOfExtra => {
-          // console.log(`productGroupOfExtra.id: ${productGroupOfExtra.id} === key: ${key}`);
-          // check if the productGroupOfExtra.id is the same as the key of the checkboxRadioDataInputs
-          if (Number(productGroupOfExtra.id) === Number(key)) {
-            console.log("is the same")
-            if (productGroupOfExtra.extras && productGroupOfExtra.extras.length > 0) {
-              console.log("key: work properly ", key);
-              
-              productGroupOfExtra.extras.forEach(extra => {
-                console.log("checkboxRadioDataInputs[key]: IS ARRAY:  ", Array.isArray(checkboxRadioDataInputs[key]));
-                console.log("checkboxRadioDataInputs[key]: type:  ", typeof checkboxRadioDataInputs[key]);
-                console.log("checkboxRadioDataInputs[key]: value:  ", checkboxRadioDataInputs[key]);
-                
-                 
-                if ( checkboxRadioDataInputs[key].includes(Number(extra.id))) {
-                  console.log(`extra.price_adjustment):${ Number(extra.id)} === ${ Number(checkboxRadioDataInputs[key])} `, extra.price_adjustment);
-                  extrasPrice += Number(extra.price_adjustment);
-                  // extrasPrice += Number(extra.price_adjustment).toFixed(2);
-                  console.log("extra.price: ", extra.price_adjustment);
-                }
-              })
-            }else{
-              console.log("something went wrong with the extras");
-              
-            }
-          }
-        }
-        )
-      }
-
-    }
-
-
-
-
+const extrasPrice = computed(() => {
+  if (!productGroupOfExtras.value) {
+    return 0.00;
   }
-
-  console.log("extrasPrice: ", extrasPrice);
-
-  return totalProductPrice(Number(product.price) + Number(extrasPrice), productQuantity.value);
+  return priceForExtras(productGroupOfExtras, checkboxRadioDataInputs);
 });
+const totalPrice = computed(() => {
+  // const extrasPrice = priceForExtras(productGroupOfExtras, checkboxRadioDataInputs);
+console.log("totalPrice - extrasPrice=",extrasPrice.value);
+
+  return totalProductPrice(Number(product.price) + Number(extrasPrice.value), productQuantity.value);
+});
+
 
 
 // ---------- functions -----------------
@@ -158,12 +117,10 @@ const subtractQuantityToProduct = () => {
 const addToBasket = () => {
   const order = {
     product_id: product.id,
-    title: product.name,
-    extras: {
-      sugar: "white",
-    },
-    price: product.price,
+    extras: checkboxRadioDataInputs,
+    price: Number(product.price) + Number(extrasPrice.value),
     quantity: productQuantity.value,
+    extraDetails: extraDetails.value
     // Other order details...
   };
   basket.addOrder(order);
@@ -193,6 +150,8 @@ const handleSubmit = (event) => {
 };
 
 const closeTheModal = () => {
+  console.log("closeTheModal works");
+  
   router.push("../");
 };
 
@@ -311,6 +270,10 @@ onUnmounted(() => {
                 :initializecheckboxRadioDataInputsWithDefaultValues="initializecheckboxRadioDataInputsWithDefaultValues"
                 :handleCheckboxChange="handleCheckboxChange" :checkboxRadioDataInputs="checkboxRadioDataInputs">
               </CheckboxRadioProductGroup>
+              <div class="mb-3 w-auto p-3 " style="background-color: rgb(244, 244, 244);">
+                <label for="extraDetails" class="form-label "><span class="fw-bold">Θέλεις να λάβουμε κάτι υπόψη;</span>(προαιρετικό)</label>
+                <textarea v-model="extraDetails" class="form-control " id="extraDetails" rows="3" placeholder="Πρόσθεσε το σχόλιό σου εδώ"></textarea>
+              </div>
             </form>
           </div>
         </div>
@@ -328,8 +291,8 @@ onUnmounted(() => {
                 </div>
               </div>
               <div class="col-6">
-                <button v-if="totalPrice" @click="addToBasket" class="btn btn-success btn-sm add">
-                  Προσθήκη <b>{{ totalPrice }}€</b>
+                <button v-if="totalPrice && totalPrice !== '0,00'" @click="addToBasket" class="btn btn-success btn-sm add">
+                  Προσθήκη <b>{{  totalPrice  }}€</b>
                 </button>
               </div>
             </div>
@@ -391,7 +354,7 @@ onUnmounted(() => {
 }
 
 .add {
-  height: 38px;
+  /* height: 38px; */
   border-radius: 4px;
   /* margin-left: 40px;
     padding-right: 22px;
