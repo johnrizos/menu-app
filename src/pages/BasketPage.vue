@@ -1,12 +1,19 @@
 <script setup>
-import { ref, watch, onBeforeMount } from 'vue';
+import { ref,reactive, watch, onBeforeMount,onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useBasketStore } from '../stores/basket';
 import router from '@/router';
 import priceHook from '@/hooks/price/priceHook.js';
 import goBackOrHome from '../hooks/navigation/goBackOrHome.js';
+import {productGroupOfExtras as data} from '@/http/product/product-api.js';
 
+
+// initialize
+const productGroupOfExtras = reactive({});
+
+// variables
 const basketStore = useBasketStore();
+console.log("basketStore", basketStore.basket);
 const proceedToCheckOut = (() => {
   console.log("proceedToCheckOut works");
   router.push("/checkout");
@@ -17,13 +24,67 @@ const {textPriceToNumber, calculateNumberPriceAndQuantity, totalProductPrice} = 
 
 console.log("test", textPriceToNumber("10,23"));
 
+const productsInBasket = ref([
+  {
+    id: 1,
+    title: "Προϊόν 1",
+    price: "10,23",
+    quantity: 1
+  },
+  {
+    id: 2,
+    title: "Προϊόν 2",
+    price: "20,23",
+    quantity: 1
+  }
+]);
 
+
+
+// functions
+// create a function which will get the basket orders from localstorage with tthe use of the basket store and then get the api for each for order and then check if everything workls properly for ecsmple the prices and also if existe the extras for each product
+function getBasketOrders() {
+  console.log("getBasketOrders works");
+  const basket = basketStore.basket;
+  return;
+  console.log("basket", basket);
+  const basketOrders = [];
+  for (const [key, value] of Object.entries(basket)) {
+    console.log("key", key);
+    console.log("value", value);
+    const product = productGroupOfExtras.value.find((product) => product.id === value.id);
+    console.log("product", product);
+    if (product) {
+      const productOrder = {
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        quantity: value.quantity,
+        extras: product.extras
+      }
+      basketOrders.push(productOrder);
+    }
+  }
+  console.log("basketOrders", basketOrders);
+  return basketOrders;
+}
+getBasketOrders();
+
+// watchers
 watch(basketStore, (newValue, oldValue) => {
   console.log("newValue totalQuantityOfProducts", newValue.totalQuantityOfProducts);
   if (newValue.totalQuantityOfProducts === 0) {
     goBackOrHome();
   }
 })
+
+// lifecycle hook
+
+onMounted(async () => {
+  // productGroupOfExtras = await data();
+  // console.log("onMounted productGroupOfExtras: ", productGroupOfExtras.value);
+
+});
 
 onBeforeMount(() => {
   if (!basketStore.totalQuantityOfProducts || basketStore.totalQuantityOfProducts === 0) {

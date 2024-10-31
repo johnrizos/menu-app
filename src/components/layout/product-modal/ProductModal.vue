@@ -12,7 +12,7 @@ import { useRoute } from "vue-router";
 import { useBasketStore } from "../../../stores/basket";
 import router from "@/router";
 import price from "../../../hooks/price/priceHook.js";
-import productAndExtrasData from "../../../http/product/product-api.js";
+import {productWithGroupOfExtra} from "../../../http/product/product-api.js";
 import { parse } from "vue/compiler-sfc";
 import CheckboxRadioProductGroup from "./form/CheckboxRadioProductGroup.vue";
 
@@ -22,6 +22,8 @@ import CheckboxRadioProductGroup from "./form/CheckboxRadioProductGroup.vue";
 // 2. check tha that is hided the child extras
 // 3. check that everything added in the form is added in the basket
 
+
+// initialize
 //--------- variables ------------
 const images_url = inject("images_url");
 const route = useRoute();
@@ -208,10 +210,8 @@ onMounted(async () => {
   document.body.classList.add("modal-open");
   // console.log(" route.params= ", route.params);
   productId.value = route.params.product || "";
-  // console.log("productId: " + productId.value);
-  const { data } = await productAndExtrasData(productId.value);
-  console.log("data=", data.data[0]);
-  productAndExtras.value = data.data[0];
+
+  productAndExtras.value = await productWithGroupOfExtra(productId.value);
   console.log("productAndExtras=", productAndExtras.value);
 
   product.id = productAndExtras.value.id;
