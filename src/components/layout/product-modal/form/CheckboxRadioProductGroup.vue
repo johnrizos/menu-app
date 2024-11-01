@@ -21,16 +21,27 @@ const props = defineProps({
   },
 });
 
+//1. I want initial data for the checkboxRadioDataInputs to be an object
+// 2. I want to have a computed property that will return an array with all the selected extras
+// 3. I want to have a function that will check if the group of extras is visible
+// 4. I want to have a watcher for the computed extrasArray
+// 5. I want to have a watcher for the productGroupOfExtras
+
 // console.log("props.productGroupOfExtras:", props.productGroupOfExtras.value);
 const { numberPriceToText} = price();
+const { productGroupOfExtras, handleCheckboxChange } = toRefs(props);
+const initializecheckboxRadioDataInputsWithDefaultValues = props.initializecheckboxRadioDataInputsWithDefaultValues;
 
-const  productGroupOfExtras  = ref([]);
-const  initializecheckboxRadioDataInputsWithDefaultValues = props.initializecheckboxRadioDataInputsWithDefaultValues;
-const  handleCheckboxChange  = props.handleCheckboxChange;
-productGroupOfExtras.value = props.productGroupOfExtras.value || [];
+// const  productGroupOfExtras  = ref([]);
+// const  initializecheckboxRadioDataInputsWithDefaultValues = props.initializecheckboxRadioDataInputsWithDefaultValues;
+// const  handleCheckboxChange  = props.handleCheckboxChange;
+// productGroupOfExtras.value = props.productGroupOfExtras.value || [];
 
 // ---------- variables ---------------
-const checkboxRadioDataInputs = reactive(props.checkboxRadioDataInputs);
+const checkboxRadioDataInputs = reactive(props.checkboxRadioDataInputs );
+
+console.log("checkbox form checkboxRadioDataInputs:", checkboxRadioDataInputs);
+
 
 // array with all the selected extras
 const extrasArray = computed(() => {
@@ -81,9 +92,7 @@ for (let i = 0; i < productGroupOfExtra.visible_with_extras.length; i++) {
   return false;
 };
 
-//--------------- apply functions ---------------
-initializecheckboxRadioDataInputsWithDefaultValues();
-// console.log("checkboxRadioDataInputs", checkboxRadioDataInputs);
+
 
 // -------------- watchers ---------------
 
@@ -120,8 +129,8 @@ watch(
       v-for="productGroupOfExtra in productGroupOfExtras"
       :key="productGroupOfExtra['product_group_of_extra_id']"
     >
-      <div v-if="checkIfGroupIsVisible(productGroupOfExtra,extrasArray)" class="w-auto p-2 radio-group-of-extras">
-        <h2>{{ productGroupOfExtra.name }}</h2>
+      <div v-if="checkIfGroupIsVisible(productGroupOfExtra,extrasArray) || checkboxRadioDataInputs.hasOwnProperty([productGroupOfExtra['product_group_of_extra_id']])" class="w-auto p-2 radio-group-of-extras">
+        <h2>this is id {{ productGroupOfExtra['product_group_of_extra_id'] }} of the group which is {{checkboxRadioDataInputs.hasOwnProperty([productGroupOfExtra['product_group_of_extra_id']])  }} {{ productGroupOfExtra.name }}</h2>
         <div class="form-check p-0">
           <!-- radio type is 0 and Checkbox type is 1  -->
           <div

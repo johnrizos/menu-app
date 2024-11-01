@@ -8,46 +8,17 @@ import goBackOrHome from '../hooks/navigation/goBackOrHome.js';
 import {productGroupOfExtras as data} from '@/http/product/product-api.js';
 
 
-// initialize
-const productGroupOfExtras = reactive({});
-
-// variables
+// get the basket from localstorage
 const basketStore = useBasketStore();
-console.log("basketStore", basketStore.basket);
-const proceedToCheckOut = (() => {
-  console.log("proceedToCheckOut works");
-  router.push("/checkout");
-});
+// console.log("basketStore", basketStore.basket);
 
 
-const {textPriceToNumber, calculateNumberPriceAndQuantity, totalProductPrice} = priceHook();
-
-console.log("test", textPriceToNumber("10,23"));
-
-const productsInBasket = ref([
-  {
-    id: 1,
-    title: "Προϊόν 1",
-    price: "10,23",
-    quantity: 1
-  },
-  {
-    id: 2,
-    title: "Προϊόν 2",
-    price: "20,23",
-    quantity: 1
-  }
-]);
-
-
-
-// functions
-// create a function which will get the basket orders from localstorage with tthe use of the basket store and then get the api for each for order and then check if everything workls properly for ecsmple the prices and also if existe the extras for each product
 function getBasketOrders() {
+//a function which will get the basket orders from localstorage with the use of the basket store and then get the api for each  order and then check if everything workls properly for example the prices and also if exist the extras for each product
   console.log("getBasketOrders works");
   const basket = basketStore.basket;
-  return;
   console.log("basket", basket);
+
   const basketOrders = [];
   for (const [key, value] of Object.entries(basket)) {
     console.log("key", key);
@@ -69,6 +40,45 @@ function getBasketOrders() {
   return basketOrders;
 }
 getBasketOrders();
+
+
+// create productGroupOfExtras data from the api to preview the products in the basketpage
+const productGroupOfExtras = reactive({});
+
+const productsInBasket = ref([
+  {
+    id: 1,
+    title: "Προϊόν 1",
+    price: "10,23",
+    quantity: 1
+  },
+  {
+    id: 2,
+    title: "Προϊόν 2",
+    price: "20,23",
+    quantity: 1
+  }
+]);
+
+
+
+// funtion to go to the checkkout
+function proceedToCheckOut() {
+  console.log("proceedToCheckOut works");
+  router.push("/checkout");
+};
+
+
+const {textPriceToNumber, calculateNumberPriceAndQuantity, totalProductPrice} = priceHook();
+
+console.log("test", textPriceToNumber("10,23"));
+
+
+
+
+
+// functions
+
 
 // watchers
 watch(basketStore, (newValue, oldValue) => {

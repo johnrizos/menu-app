@@ -47,5 +47,33 @@ export const useBasketStore = defineStore("basket", () => {
     return totalPrice.toFixed(2).toString().replace(".", ",");
   });
 
-  return { basket, addOrder, totalPrice, totalQuantityOfProducts, removerItem };
+  // get the value of specific product id fromt the basket the object looks like this {
+  //{1730447761498-2050: {
+    // "product_id": 1,
+    // "extras": {
+    //     "1": [
+    //         2,
+    //         3
+    //     ],
+    //     "2": [
+    //         10
+    //     ]
+    // },
+    // "price": 2.4,
+    // "quantity": 1,
+    // "extraDetails": "κοφτή να είναι η ζάχαρη"}}
+
+  const getProductById = (productId) => {
+    const currentBasket = basket.value;
+    let product = {};
+    Object.keys(currentBasket).forEach((key) => {
+      if (currentBasket[key].product_id === productId) {
+        product = currentBasket[key];
+      }
+    });
+    return product;
+  };
+
+
+  return { basket, addOrder, totalPrice, totalQuantityOfProducts, removerItem, getProductById };
 });

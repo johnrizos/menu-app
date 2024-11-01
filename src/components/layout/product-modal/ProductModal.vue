@@ -15,6 +15,7 @@ import price from "../../../hooks/price/priceHook.js";
 import {productWithGroupOfExtra} from "../../../http/product/product-api.js";
 import { parse } from "vue/compiler-sfc";
 import CheckboxRadioProductGroup from "./form/CheckboxRadioProductGroup.vue";
+import ProductForm from "./form/ProductForm.vue";
 
 // to do
 // 1. check that  the extras is added in the form
@@ -28,6 +29,7 @@ import CheckboxRadioProductGroup from "./form/CheckboxRadioProductGroup.vue";
 const images_url = inject("images_url");
 const route = useRoute();
 const productId = ref();
+const useLocalStorageData = ref(false);
 const productAndExtras = ref({});
 const { numberPriceToText, totalProductPrice, priceForExtras } = price();
 // formdata for extras with the values and the text to add a description
@@ -58,8 +60,9 @@ const showButton = ref(false);
 const contentRef = ref(null);
 const basket = useBasketStore();
 const productQuantity = ref(1);
-const checkboxRadioDataInputs = reactive({})
-
+// const checkboxRadioDataInputs = reactive(useLocalStorageData.value ? basket.getProductById(1) : {});
+let checkboxRadioDataInputs = reactive({});
+console.log("getProductById(1)",basket.getProductById(1))
 const extrasPrice = computed(() => {
   if (!productGroupOfExtras.value) {
     return 0.00;
@@ -168,6 +171,12 @@ const initializecheckboxRadioDataInputsWithDefaultValues = () => {
     // console.log("productGroupOfExtras.value.length is empty");
     return;
   }
+
+  console.log("basket.getProductById(1).extras=",basket.getProductById(1).extras);
+  if(useLocalStorageData.value){
+    checkboxRadioDataInputs = basket.getProductById(1).extras;
+    return;
+  }
   productGroupOfExtras.value.forEach((productGroupOfExtra) => {
     if (productGroupOfExtra.default_value) {
       checkboxRadioDataInputs[productGroupOfExtra.id] = [productGroupOfExtra.default_value];
@@ -206,6 +215,14 @@ const deleteEmptyKeys = (obj) => {
 
 // ---------- lifecycle hooks -----------------
 onMounted(async () => {
+
+  console.log("route=", route.fullPath);
+if(route.fullPath.includes("category")){
+    useLocalStorageData.value = false;
+}else if(route.fullPath.includes("basket")){
+    useLocalStorageData.value = true;
+}
+useLocalStorageData.value = true;
   checkContentHeight();
   document.body.classList.add("modal-open");
   // console.log(" route.params= ", route.params);
@@ -264,17 +281,9 @@ onUnmounted(() => {
                 {{ numberPriceToText(product.price) }}€
               </p>
             </div>
-            <form @submit.prevent="handleSubmit">
-              <!-- productGroup bootstap 5 radios with options -->
-              <CheckboxRadioProductGroup :productGroupOfExtras="productGroupOfExtras"
+              <ProductForm :useLocalStorageData="useLocalStorageData" :productGroupOfExtras="productGroupOfExtras"
                 :initializecheckboxRadioDataInputsWithDefaultValues="initializecheckboxRadioDataInputsWithDefaultValues"
-                :handleCheckboxChange="handleCheckboxChange" :checkboxRadioDataInputs="checkboxRadioDataInputs">
-              </CheckboxRadioProductGroup>
-              <div class="mb-3 w-auto p-3 " style="background-color: rgb(244, 244, 244);">
-                <label for="extraDetails" class="form-label "><span class="fw-bold">Θέλεις να λάβουμε κάτι υπόψη;</span>(προαιρετικό)</label>
-                <textarea v-model="extraDetails" class="form-control " id="extraDetails" rows="3" placeholder="Πρόσθεσε το σχόλιό σου εδώ"></textarea>
-              </div>
-            </form>
+                :handleCheckboxChange="handleCheckboxChange" :checkboxRadioDataInputs="checkboxRadioDataInputs" />
           </div>
         </div>
         <!-- footer -->
@@ -292,7 +301,7 @@ onUnmounted(() => {
               </div>
               <div class="col-6">
                 <button v-if="totalPrice && totalPrice !== '0,00'" @click="addToBasket" class="btn btn-success btn-sm add">
-                  Προσθήκη <b>{{  totalPrice  }}€</b>
+                  {{ useLocalStorageData ? "Αποθήκευση" : "Προσθήκη" }} <b>{{  totalPrice  }}€</b>
                 </button>
               </div>
             </div>
