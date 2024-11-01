@@ -26,9 +26,10 @@ export default function price() {
 
   function priceForExtras(productGroupOfExtras, checkboxRadioDataInputs) {
     let extrasPrice = Number(0.00);
-    if (Object.entries(checkboxRadioDataInputs).length !== 0 || productGroupOfExtras.value) {
+    if (Object.entries(checkboxRadioDataInputs).length !== 0 || productGroupOfExtras.length !== 0) {
       for (const key in checkboxRadioDataInputs) {
-          productGroupOfExtras.value.forEach((productGroupOfExtra) => {
+        
+          productGroupOfExtras.forEach((productGroupOfExtra) => {
             // check if the productGroupOfExtra.id is the same as the key of the checkboxRadioDataInputs
             if (Number(productGroupOfExtra.id) === Number(key)) {
               if ( productGroupOfExtra.extras && productGroupOfExtra.extras.length > 0 ) {

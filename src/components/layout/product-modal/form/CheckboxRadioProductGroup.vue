@@ -38,7 +38,7 @@ const initializecheckboxRadioDataInputsWithDefaultValues = props.initializecheck
 // productGroupOfExtras.value = props.productGroupOfExtras.value || [];
 
 // ---------- variables ---------------
-const checkboxRadioDataInputs = reactive(props.checkboxRadioDataInputs );
+const checkboxRadioDataInputs = computed(() => props.checkboxRadioDataInputs );
 
 console.log("checkbox form checkboxRadioDataInputs:", checkboxRadioDataInputs);
 
@@ -72,7 +72,11 @@ function extractValuesToArray(obj) {
 }
 
 // check if the group of extras is visible 
-const checkIfGroupIsVisible = (productGroupOfExtra,extrasArray) => {
+const checkIfGroupIsVisible = (productGroupOfExtra,extrasArray,checkboxRadioDataInputs) => {
+
+  if(checkboxRadioDataInputs.hasOwnProperty([productGroupOfExtra['product_group_of_extra_id']])){
+    return true;
+  }
   if (productGroupOfExtra.has_parent === 0) {
     return true;
   }
@@ -91,6 +95,12 @@ for (let i = 0; i < productGroupOfExtra.visible_with_extras.length; i++) {
   }
   return false;
 };
+
+function checkIFExtraIsChecked(checkboxRadioDataInputs){
+  if(checkboxRadioDataInputs.hasOwnProperty([productGroupOfExtra['product_group_of_extra_id']])){
+    return true;
+  }
+}
 
 
 
@@ -129,7 +139,7 @@ watch(
       v-for="productGroupOfExtra in productGroupOfExtras"
       :key="productGroupOfExtra['product_group_of_extra_id']"
     >
-      <div v-if="checkIfGroupIsVisible(productGroupOfExtra,extrasArray) || checkboxRadioDataInputs.hasOwnProperty([productGroupOfExtra['product_group_of_extra_id']])" class="w-auto p-2 radio-group-of-extras">
+      <div v-if="checkIfGroupIsVisible(productGroupOfExtra,extrasArray,checkboxRadioDataInputs)" class="w-auto p-2 radio-group-of-extras">
         <h2>this is id {{ productGroupOfExtra['product_group_of_extra_id'] }} of the group which is {{checkboxRadioDataInputs.hasOwnProperty([productGroupOfExtra['product_group_of_extra_id']])  }} {{ productGroupOfExtra.name }}</h2>
         <div class="form-check p-0">
           <!-- radio type is 0 and Checkbox type is 1  -->

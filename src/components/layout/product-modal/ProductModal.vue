@@ -6,7 +6,7 @@ import {
   onMounted,
   onBeforeMount,
   onUnmounted,
-  inject,
+  inject,watch
 } from "vue";
 import { useRoute } from "vue-router";
 import { useBasketStore } from "../../../stores/basket";
@@ -49,7 +49,7 @@ const product = reactive({
   quantity: 1,
 });
 
-const productGroupOfExtras = ref({});
+const productGroupOfExtras = ref([]);
 
 // modal
 const parentDiv = ref(null);
@@ -62,12 +62,22 @@ const basket = useBasketStore();
 const productQuantity = ref(1);
 // const checkboxRadioDataInputs = reactive(useLocalStorageData.value ? basket.getProductById(1) : {});
 let checkboxRadioDataInputs = reactive({});
+
+checkboxRadioDataInputs = {
+  1: [
+    2,
+    3
+  ],
+  2: [
+    10
+  ]
+};
 console.log("getProductById(1)",basket.getProductById(1))
 const extrasPrice = computed(() => {
   if (!productGroupOfExtras.value) {
     return 0.00;
   }
-  return priceForExtras(productGroupOfExtras, checkboxRadioDataInputs);
+  return priceForExtras(productGroupOfExtras.value, checkboxRadioDataInputs);
 });
 const totalPrice = computed(() => {
   // const extrasPrice = priceForExtras(productGroupOfExtras, checkboxRadioDataInputs);
@@ -118,6 +128,9 @@ const subtractQuantityToProduct = () => {
   }
 };
 
+watch(checkboxRadioDataInputs, async (newcheckboxRadioDataInputs, oldcheckboxRadioDataInputs) => {
+  console.log("newcheckboxRadioDataInputs: ", newcheckboxRadioDataInputs);
+});
 
 const addToBasket = () => {
   const order = {

@@ -32,7 +32,7 @@ const props = defineProps({
 const { productGroupOfExtras, handleCheckboxChange, useLocalStorageData } = toRefs(props);
 
 // Create a local reactive copy of checkboxRadioDataInputs for modifications
-const checkboxRadioDataInputs = reactive({...props.checkboxRadioDataInputs} );
+const checkboxRadioDataInputs = computed(() => props.checkboxRadioDataInputs );
 
 const initializecheckboxRadioDataInputsWithDefaultValues = props.initializecheckboxRadioDataInputsWithDefaultValues;
 
