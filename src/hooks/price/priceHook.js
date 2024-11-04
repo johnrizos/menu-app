@@ -26,6 +26,12 @@ export default function price() {
 
   function priceForExtras(productGroupOfExtras, checkboxRadioDataInputs) {
     let extrasPrice = Number(0.00);
+    console.log("checkboxRadioDataInputs: ", checkboxRadioDataInputs);
+    if (checkboxRadioDataInputs === undefined || checkboxRadioDataInputs === null) {
+      console.log("checkboxRadioDataInputs is undefined or null");
+      
+      return extrasPrice;
+    }
     if (Object.entries(checkboxRadioDataInputs).length !== 0 || productGroupOfExtras.length !== 0) {
       for (const key in checkboxRadioDataInputs) {
         

@@ -3,6 +3,7 @@ import {
   ref,
   reactive,
   computed,
+  toRefs,
   onMounted,
   onBeforeMount,
   onUnmounted,
@@ -60,19 +61,23 @@ const showButton = ref(false);
 const contentRef = ref(null);
 const basket = useBasketStore();
 const productQuantity = ref(1);
-// const checkboxRadioDataInputs = reactive(useLocalStorageData.value ? basket.getProductById(1) : {});
-let checkboxRadioDataInputs = reactive({});
+const checkboxRadioDataInputs = reactive({});
+const { checkboxRadioDataInputs: checkboxDataRefs } = toRefs({ checkboxRadioDataInputs });
+watch(checkboxRadioDataInputs,  (newcheckboxRadioDataInputs, oldcheckboxRadioDataInputs) => {
+  console.log("newcheckboxRadioDataInputs: ", newcheckboxRadioDataInputs);
+});
 
-checkboxRadioDataInputs = {
-  1: [
-    2,
-    3
-  ],
-  2: [
-    10
-  ]
-};
-console.log("getProductById(1)",basket.getProductById(1))
+
+// checkboxRadioDataInputs = {
+//   1: [
+//     2,
+//     3
+//   ],
+//   2: [
+//     10
+//   ]
+// };
+console.log("getProductById(1)",basket.getProductById(productId))
 const extrasPrice = computed(() => {
   if (!productGroupOfExtras.value) {
     return 0.00;
@@ -128,9 +133,7 @@ const subtractQuantityToProduct = () => {
   }
 };
 
-watch(checkboxRadioDataInputs, async (newcheckboxRadioDataInputs, oldcheckboxRadioDataInputs) => {
-  console.log("newcheckboxRadioDataInputs: ", newcheckboxRadioDataInputs);
-});
+
 
 const addToBasket = () => {
   const order = {
@@ -175,27 +178,30 @@ const closeTheModal = () => {
 
 
 // initialize the checkboxRadioDataInputs with the default values - Parent
-const initializecheckboxRadioDataInputsWithDefaultValues = () => {
-  if (!productGroupOfExtras.value) {
-    // console.log("productGroupOfExtras.value is empty");
+const initializecheckboxRadioDataInputsWithDefaultValues = (productId) => {
+  if(!productId){
     return;
   }
-  if (!productGroupOfExtras.value.length) {
-    // console.log("productGroupOfExtras.value.length is empty");
+  if (!productGroupOfExtras.value || !productGroupOfExtras.value.length) {
     return;
   }
 
-  console.log("basket.getProductById(1).extras=",basket.getProductById(1).extras);
-  if(useLocalStorageData.value){
-    checkboxRadioDataInputs = basket.getProductById(1).extras;
+  console.log("basket.getProductById(1).extras=", basket.getProductById(productId).extras);
+
+  if (useLocalStorageData.value) {
+    // Assign properties of `basket.getProductById(1).extras` to `checkboxRadioDataInputs` instead of reassigning the object
+    Object.assign(checkboxRadioDataInputs, basket.getProductById(productId).extras);
     return;
   }
+
+  // Initialize `checkboxRadioDataInputs` with default values
   productGroupOfExtras.value.forEach((productGroupOfExtra) => {
     if (productGroupOfExtra.default_value) {
       checkboxRadioDataInputs[productGroupOfExtra.id] = [productGroupOfExtra.default_value];
     }
   });
 };
+
 
 // handle the checkbox change - Parent
 const handleCheckboxChange = (event, product_group_of_extra_id) => {
@@ -235,7 +241,7 @@ if(route.fullPath.includes("category")){
 }else if(route.fullPath.includes("basket")){
     useLocalStorageData.value = true;
 }
-useLocalStorageData.value = true;
+// useLocalStorageData.value = true;
   checkContentHeight();
   document.body.classList.add("modal-open");
   // console.log(" route.params= ", route.params);
@@ -294,7 +300,7 @@ onUnmounted(() => {
                 {{ numberPriceToText(product.price) }}€
               </p>
             </div>
-              <ProductForm :useLocalStorageData="useLocalStorageData" :productGroupOfExtras="productGroupOfExtras"
+              <ProductForm :productId="productId" :useLocalStorageData="useLocalStorageData" :productGroupOfExtras="productGroupOfExtras"
                 :initializecheckboxRadioDataInputsWithDefaultValues="initializecheckboxRadioDataInputsWithDefaultValues"
                 :handleCheckboxChange="handleCheckboxChange" :checkboxRadioDataInputs="checkboxRadioDataInputs" />
           </div>
