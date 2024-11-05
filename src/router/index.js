@@ -29,6 +29,13 @@ const routes = [
   {
     path: "/basket",
     component: BasketPage,
+    children:[
+      {
+        path: "product/:product",
+        component: ProductModal,
+        props: route => ({...route.params,id: parseInt(route.params)}),
+      }
+    ]
   },
   {
     path: "/checkout",

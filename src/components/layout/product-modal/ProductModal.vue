@@ -30,6 +30,7 @@ import ProductForm from "./form/ProductForm.vue";
 const images_url = inject("images_url");
 const route = useRoute();
 const productId = ref();
+const orderId = ref();
 const useLocalStorageData = ref(false);
 const productAndExtras = ref({});
 const { numberPriceToText, totalProductPrice, priceForExtras } = price();
@@ -77,7 +78,6 @@ watch(checkboxRadioDataInputs,  (newcheckboxRadioDataInputs, oldcheckboxRadioDat
 //     10
 //   ]
 // };
-console.log("getProductById(1)",basket.getProductById(productId))
 const extrasPrice = computed(() => {
   if (!productGroupOfExtras.value) {
     return 0.00;
@@ -186,7 +186,6 @@ const initializecheckboxRadioDataInputsWithDefaultValues = (productId) => {
     return;
   }
 
-  console.log("basket.getProductById(1).extras=", basket.getProductById(productId).extras);
 
   if (useLocalStorageData.value) {
     // Assign properties of `basket.getProductById(1).extras` to `checkboxRadioDataInputs` instead of reassigning the object
@@ -245,7 +244,12 @@ if(route.fullPath.includes("category")){
   checkContentHeight();
   document.body.classList.add("modal-open");
   // console.log(" route.params= ", route.params);
-  productId.value = route.params.product || "";
+  if(!useLocalStorageData.value){
+    productId.value = route.params.product || "";
+  }else{
+    orderId.value = route.params.product || "";
+    productId.value = basket.getProductIdFromOrderId(route.params.product || "")
+  }
 
   productAndExtras.value = await productWithGroupOfExtra(productId.value);
   console.log("productAndExtras=", productAndExtras.value);

@@ -6,6 +6,7 @@ import router from '@/router';
 import priceHook from '@/hooks/price/priceHook.js';
 import goBackOrHome from '../hooks/navigation/goBackOrHome.js';
 import {productWithGroupOfExtra}  from '@/http/product/product-api.js';
+import SingleOrderCart from '../components/layout/basket-page-components/SingleOrderCart.vue';
 
 
 
@@ -108,6 +109,12 @@ function removerItem(key) {
   delete basketOrders[key];
 }
 
+function clickHandlerItem(orderId){
+  console.log("orderId", orderId);
+  
+  console.log("clickHandlerItem works");
+}
+
 // watchers
 watch(basketStore, (newValue, oldValue) => {
   console.log("newValue totalQuantityOfProducts", newValue.totalQuantityOfProducts);
@@ -152,41 +159,14 @@ onBeforeMount(() => {
           <!-- end of header -->
           <!-- products -->
           <div class="mt-4" style="">
-            <div v-for=" ([key, value]) in Object.entries(basketOrders)" :key="key" class="card mb-3">
-              <div class="card-body p-1  pe-2">
-                <div class="d-flex justify-content-between">
-                  <div class="d-flex flex-row align-items-center">
-                    <div>
-                      <!-- <img
-                            src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-shopping-carts/img1.webp"
-                            class="img-fluid rounded-3" alt="Shopping item" style="width: 65px;"> -->
-                    </div>
-
-                    <div style="width: 50px;">
-                      <span class="input-group-text bg-white d-block"
-                        style="background-color:rgb(247, 247, 247)!important">{{ value.quantity }}</span>
-                    </div>
-                    <div class="ms-3">
-                      <p class="m-0">{{ value.title }}</p>
-                    </div>
-                  </div>
-                  <div class="d-flex flex-row align-items-center">
-
-
-                    <div style="width: 80px;">
-                      <p class="mb-0">{{ value.price }}€</p>
-                    </div>
-                    <div @click="removerItem(key)" style="color: #cecece;" class="text-danger"><i
-                        class="fas fa-trash-alt"></i></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+              <!--  -->
+              <SingleOrderCart  v-for=" ([key, value]) in Object.entries(basketOrders)" :value="value" :key="key" :orderID="key" :clickHandlerItem="clickHandlerItem" :removerItem="removerItem" />
           </div>
           <!--end of products -->
 
 
         </div>
+        <router-view />
         <!-- footer  -->
         <div v-if="basketStore.totalQuantityOfProducts > 0"
           class="position-fixed  bottom-0 start-50 translate-middle-x checkout-cta" style="width:100%;">
@@ -221,6 +201,10 @@ onBeforeMount(() => {
   .h-custom {
     min-height: calc(80vh - 40px);
   }
+}
+
+.mouse-pointer {
+  cursor: pointer;
 }
 
 .checkout-cta {

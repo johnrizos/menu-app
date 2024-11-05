@@ -75,5 +75,29 @@ export const useBasketStore = defineStore("basket", () => {
   };
 
 
-  return { basket, addOrder, totalPrice, totalQuantityOfProducts, removerItem, getProductById };
+  const getProductIdFromOrderId = (orderId) => {
+    if (!orderId) {
+      return;
+    }
+    if (!basket.value[orderId]) {
+      return;
+    }
+    const currentBasket = basket.value;
+    if (!currentBasket[orderId]) {
+      return;
+    }
+    const order = currentBasket[orderId];
+    if (!order) {
+      return;
+    }
+    const  productId = order.product_id;
+    if (!productId) {
+      return;
+    }
+    
+    return productId;
+  };
+
+
+  return { basket, addOrder, totalPrice, totalQuantityOfProducts, removerItem, getProductById,getProductIdFromOrderId };
 });
