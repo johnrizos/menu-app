@@ -22,3 +22,7 @@ export default function goBackOrHome() {
 
 
 }
+
+export function goTohome() {
+  router.push("/");
+}

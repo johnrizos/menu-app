@@ -8,14 +8,19 @@ const props = defineProps(
     }
 );
 
-const clickHandlerItem = props.clickHandlerItem;
 const removerItem = props.removerItem;
+
+const handleRemoverItem = (event) => {
+  event.preventDefault();
+  event.stopPropagation(); // Prevent parent click from firing
+  props.removerItem(props.orderID); // Pass only the key (orderID) to the parent's removerItem
+};
 
 </script>
 
 <template>
         <!-- <router-link :to="'/category/1/product/' + product.id  "> -->
-        <router-link :to="'/basket/product/' + props.orderID  ">
+        <router-link :to="'/basket/product/' + props.orderID" class="text-decoration-none">
             <div  class="card mb-3">
 
                   <div class="card-body p-1  mouse-pointer" @click="clickHandlerItem(key)">
@@ -41,7 +46,7 @@ const removerItem = props.removerItem;
                     <div style="width: 80px;">
                       <p class="mb-0">{{ props.value.price }}€</p>
                     </div>
-                    <div @click="removerItem(props.key)" style="color: #cecece;" class="text-danger pe-2"><i
+                    <div @click="handleRemoverItem" style="color: #cecece;" class="text-danger pe-2"><i
                         class="fas fa-trash-alt" style="font-size: 25px;"></i></div>
                   </div>
                 </div>

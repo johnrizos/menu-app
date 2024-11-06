@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router';
 import { useBasketStore } from '../stores/basket';
 import router from '@/router';
 import priceHook from '@/hooks/price/priceHook.js';
-import goBackOrHome from '../hooks/navigation/goBackOrHome.js';
+import goBackOrHome, {goTohome} from '../hooks/navigation/goBackOrHome.js';
 import {productWithGroupOfExtra}  from '@/http/product/product-api.js';
 import SingleOrderCart from '../components/layout/basket-page-components/SingleOrderCart.vue';
 
@@ -119,7 +119,7 @@ function clickHandlerItem(orderId){
 watch(basketStore, (newValue, oldValue) => {
   console.log("newValue totalQuantityOfProducts", newValue.totalQuantityOfProducts);
   if (newValue.totalQuantityOfProducts === 0) {
-    goBackOrHome();
+    goTohome();
   }
 })
 
@@ -131,9 +131,10 @@ onMounted(async () => {
 
 });
 
+
 onBeforeMount(() => {
   if (!basketStore.totalQuantityOfProducts || basketStore.totalQuantityOfProducts === 0) {
-    goBackOrHome();
+    goTohome();
   }
 })
 </script>
@@ -147,7 +148,7 @@ onBeforeMount(() => {
             <div class="row bg-white p-3 shadow  mb-2 bg-body  rounded d-flex ">
 
               <div class="col-1">
-                <div @click="goBackOrHome" class="d-flex justify-content-start"><font-awesome-icon
+                <div @click="goTohome" class="d-flex justify-content-start"><font-awesome-icon
                     icon="fa-solid fa-angle-left" /></div>
               </div>
               <div class="col-10">

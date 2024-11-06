@@ -23,7 +23,7 @@ const id = ref(1);
 
 
 <template>
-    <router-link :to="'/category/1/product/' + product.id  ">
+    <router-link :to="'/category/1/product/' + product.id" class="text-decoration-none">
         <div class="card">
             <!---->
             <div class="card-body p-2">
@@ -106,7 +106,4 @@ img {
     border-radius: 0.42rem;
 }
 
-a{
-    text-decoration: none;
-}
 </style>

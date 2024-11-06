@@ -1,7 +1,7 @@
 
 
 <script setup >
-import { ref, watchEffect,  toRefs, watch, reactive, computed  } from "vue";
+import { ref, watchEffect,  toRefs, watch, reactive, computed,onMounted  } from "vue";
 import price from "../../../../hooks/price/priceHook.js";
 import CheckboxRadioProductGroup from "./CheckboxRadioProductGroup.vue";
 
@@ -30,9 +30,21 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  onChangeExtraDetails: {
+    type: Function,
+    required: true,
+  },
+  extraDetails: {
+    type: String,
+    required: true,
+  },
+
+
 });
 
 // create afunction that check if  props.productGroupOfExtras has the property "product_group_of_extra" and if it has it that the value is not 0 the array or null
+
+
 const checkIfProductGroupOfExtrasExist = computed(() => {
   if (props.productGroupOfExtras && props.productGroupOfExtras.length > 0) {
     return true;
@@ -51,6 +63,18 @@ watch(
 );
 // alert("props.checkboxRadioDataInputs:" + JSON.stringify(props.checkboxRadioDataInputs));
 
+watch(
+  () => props.productId,
+  async (newProductId) => {
+    if (newProductId) {
+      console.log("CheckboxRadioProductGroup component: productId updated to", newProductId);
+      await props.initializecheckboxRadioDataInputsWithDefaultValues(newProductId);
+    }
+  },
+  { immediate: true }
+);
+
+
 </script>
 
 <style scoped>
@@ -62,11 +86,12 @@ watch(
               <!-- productGroup bootstap 5 radios with options -->
               <CheckboxRadioProductGroup v-if="checkIfProductGroupOfExtrasExist" :productId="props.productId" :productGroupOfExtras="props.productGroupOfExtras"
                 :initializecheckboxRadioDataInputsWithDefaultValues="props.initializecheckboxRadioDataInputsWithDefaultValues"
-                :handleCheckboxChange="props.handleCheckboxChange" :checkboxRadioDataInputs="props.checkboxRadioDataInputs">
+                :handleCheckboxChange="props.handleCheckboxChange" :checkboxRadioDataInputs="props.checkboxRadioDataInputs"
+                >
               </CheckboxRadioProductGroup>
               <div class="mb-3 w-auto p-3 " style="background-color: rgb(244, 244, 244);">
                 <label for="extraDetails" class="form-label "><span class="fw-bold">Θέλεις να λάβουμε κάτι υπόψη;</span>(προαιρετικό)</label>
-                <textarea v-model="extraDetails" class="form-control " id="extraDetails" rows="3" placeholder="Πρόσθεσε το σχόλιό σου εδώ"></textarea>
+                <textarea @change="props.onChangeExtraDetails" class="form-control " id="extraDetails" rows="3" placeholder="Πρόσθεσε το σχόλιό σου εδώ" :value="props.extraDetails"></textarea>
               </div>
             </form>
 </template>

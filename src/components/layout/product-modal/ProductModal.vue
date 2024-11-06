@@ -39,7 +39,13 @@ const formData = reactive({
   groupOfExtras: {},
   text: "",
 });
-  const extraDetails = ref("");
+const extraDetails = ref("");
+
+
+function onChangeExtraDetails(event) {
+  extraDetails.value = event.target.value;
+}
+
 
 // product
 const product = reactive({
@@ -63,7 +69,7 @@ const contentRef = ref(null);
 const basket = useBasketStore();
 const productQuantity = ref(1);
 const checkboxRadioDataInputs = reactive({});
-const { checkboxRadioDataInputs: checkboxDataRefs } = toRefs({ checkboxRadioDataInputs });
+// const { checkboxRadioDataInputs: checkboxDataRefs } = toRefs({ checkboxRadioDataInputs  });
 watch(checkboxRadioDataInputs,  (newcheckboxRadioDataInputs, oldcheckboxRadioDataInputs) => {
   console.log("newcheckboxRadioDataInputs: ", newcheckboxRadioDataInputs);
 });
@@ -144,7 +150,11 @@ const addToBasket = () => {
     extraDetails: extraDetails.value
     // Other order details...
   };
-  basket.addOrder(order);
+  if(useLocalStorageData.value){
+    basket.updateTheOrder( orderId.value,order);
+  }else{
+    basket.addOrder(order);
+  }
   closeTheModal();
 };
 
@@ -179,17 +189,28 @@ const closeTheModal = () => {
 
 // initialize the checkboxRadioDataInputs with the default values - Parent
 const initializecheckboxRadioDataInputsWithDefaultValues = (productId) => {
+  console.log("initializecheckboxRadioDataInputsWithDefaultValues: work");
   if(!productId){
+    console.log("initializecheckboxRadioDataInputsWithDefaultValues: productId is empty");
     return;
+  }else{
+    console.log("initializecheckboxRadioDataInputsWithDefaultValues: productId is not empty");
+
   }
   if (!productGroupOfExtras.value || !productGroupOfExtras.value.length) {
-    return;
+    console.log("initializecheckboxRadioDataInputsWithDefaultValues: productGroupOfExtras is empty");
+    // return;
+  }else{
+    console.log("initializecheckboxRadioDataInputsWithDefaultValues: productGroupOfExtras is not empty");
   }
 
 
   if (useLocalStorageData.value) {
+    console.log("initializecheckboxRadioDataInputsWithDefaultValues: useLocalStorageData is true");
     // Assign properties of `basket.getProductById(1).extras` to `checkboxRadioDataInputs` instead of reassigning the object
     Object.assign(checkboxRadioDataInputs, basket.getProductById(productId).extras);
+    extraDetails.value = basket.getProductById(productId).extraDetails;
+    console.log("basket.getProductById(productId).extraDetails=", basket.getProductById(productId).extraDetails);
     return;
   }
 
@@ -248,7 +269,14 @@ if(route.fullPath.includes("category")){
     productId.value = route.params.product || "";
   }else{
     orderId.value = route.params.product || "";
-    productId.value = basket.getProductIdFromOrderId(route.params.product || "")
+    console.log("orderId=", orderId.value);
+    productId.value = parseInt(basket.getProductIdFromOrderId(orderId.value));
+    console.log("productId=", productId.value);
+  }
+
+  if (!productId.value) {
+    closeTheModal();
+    return;
   }
 
   productAndExtras.value = await productWithGroupOfExtra(productId.value);
@@ -260,7 +288,7 @@ if(route.fullPath.includes("category")){
   product.image = productAndExtras.value.image;
   product.price = productAndExtras.value.price;
 
-  productGroupOfExtras.value = productAndExtras.value.product_group_of_extra;
+  productGroupOfExtras.value = productAndExtras.value.product_group_of_extra || [];
   console.log("productGroupOfExtras=", productGroupOfExtras.value);
 });
 
@@ -306,7 +334,8 @@ onUnmounted(() => {
             </div>
               <ProductForm :productId="productId" :useLocalStorageData="useLocalStorageData" :productGroupOfExtras="productGroupOfExtras"
                 :initializecheckboxRadioDataInputsWithDefaultValues="initializecheckboxRadioDataInputsWithDefaultValues"
-                :handleCheckboxChange="handleCheckboxChange" :checkboxRadioDataInputs="checkboxRadioDataInputs" />
+                :handleCheckboxChange="handleCheckboxChange" :checkboxRadioDataInputs="checkboxRadioDataInputs"
+                :onChangeExtraDetails="onChangeExtraDetails" :extraDetails="extraDetails"  />
           </div>
         </div>
         <!-- footer -->
