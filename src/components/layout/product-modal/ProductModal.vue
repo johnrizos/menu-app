@@ -235,11 +235,39 @@ const handleCheckboxChange = (event, product_group_of_extra_id) => {
   checkboxesSelectors.forEach((checkboxesSelector) => {
     checkboxes.push(Number(checkboxesSelector.value))
   })
-  // console.log("Selected checkboxes: ", checkboxes);
+  console.log("Selected checkboxes: ", checkboxes);
 
 
   checkboxRadioDataInputs[product_group_of_extra_id] = checkboxes;
   deleteEmptyKeys(checkboxRadioDataInputs);
+
+
+  productGroupOfExtras.value.forEach((productGroupOfExtra) => {
+    if (!checkIfProductGroupOfExtraIsChildAndIfParentExtraIsChecked(productGroupOfExtra)) {
+      delete checkboxRadioDataInputs[productGroupOfExtra.id];
+     }
+  });
+};
+
+const checkIfProductGroupOfExtraIsChildAndIfParentExtraIsChecked = (productGroupOfExtra) => {
+  if (productGroupOfExtra.has_parent === 0) {
+    return true;
+  }
+
+  if (productGroupOfExtra.has_parent) {
+    if (productGroupOfExtra.visible_with_extras.length === 0)  {
+      return true;
+    }else{
+      for (let i = 0; i < productGroupOfExtra.visible_with_extras.length; i++) {
+        const currentValue = productGroupOfExtra.visible_with_extras[i];
+        if (Object.values(checkboxRadioDataInputs).reduce((acc, val) => acc.concat(val), []).includes(Number(currentValue))) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
 };
 
 // delete empty keys from the object - Parent
