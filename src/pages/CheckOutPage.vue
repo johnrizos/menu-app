@@ -1,12 +1,14 @@
 <script setup>
-import { ref,watch,onBeforeMount } from 'vue';
+import { ref,watch,onBeforeMount, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import { useBasketStore } from '../stores/basket';
 import router from '@/router';
 import priceHook from '../hooks/price/priceHook.js';
 import goBackOrHome from '../hooks/navigation/goBackOrHome.js';
+import {productWithGroupOfExtra}  from '@/http/product/product-api.js';
+import SingleOrderCart from '../components/layout/basket-page-components/SingleOrderCart.vue';
+
 import validateCreditCard from '../hooks/payment/creditCard/validateCreditCard.js';
-const basketStore = useBasketStore();
 
 const proceedToCheckOut = (() => {
     console.log("proceedToCheckOut works");
@@ -14,11 +16,57 @@ const proceedToCheckOut = (() => {
 });
 
 
-const [textPriceToNumber, calculateNumberPriceAndQuantity, totalProductPrice] = priceHook();
+const {textPriceToNumber, calculateNumberPriceAndQuantity, totalProductPrice,priceForExtras} = priceHook();
 
 console.log("test", textPriceToNumber("10,23"));
 
+const basketStore = useBasketStore();
+// console.log("basketStore", basketStore.basket);
+const basketOrders = reactive({});
 
+async function getBasketOrders() {
+//a function which will get the basket orders from localstorage with the use of the basket store and then get the api for each  order and then check if everything workls properly for example the prices and also if exist the extras for each product
+  console.log("getBasketOrders works");
+  const basket = basketStore.basket;
+  const objectOreders = {};
+  console.log("basket", basket);
+
+  for (const [key, value] of Object.entries(basket)) {
+    console.log("key", key);
+    console.log("value", value);
+    console.log("value id", value.product_id);
+    const product = await productWithGroupOfExtra(value.product_id);
+    console.log("product", product);
+    
+    const productGroupOfExtra = product["product_group_of_extra"] ?? [];
+    console.log("productGroupOfExtra", productGroupOfExtra);
+
+    console.log("basket.extras", value.extras);
+    
+    const price = totalProductPrice(textPriceToNumber(product.price) + priceForExtras(productGroupOfExtra,value.extras ?? null), value.quantity);
+    console.log("price", price);
+    
+    console.log("product", product);
+    if (product) {
+      const productOrder = {
+        id: product.id,
+        title: product.name,
+        price: price,
+        quantity: value.quantity,
+        extras: product.extras
+      }
+      if (!objectOreders[key]) {
+        objectOreders[key] = [];
+      }
+      objectOreders[key] = productOrder;
+    }
+  }
+  console.log("objectOreders", objectOreders);
+  Object.assign(basketOrders, objectOreders);
+
+  return;
+}
+getBasketOrders();
 
 // payment form
 
@@ -78,38 +126,12 @@ onBeforeMount(()=>{
                             </div>
                         </div>
                     </div>
-                    <div v-for=" ([key, value]) in Object.entries(basketStore.basket)" :key="key" class="card mb-3">
-                        <div class="card-body p-1  pe-2">
-                            <div class="d-flex justify-content-between">
-                                <div class="d-flex flex-row align-items-center">
-                                    <div>
-                                        <!-- <img
-                            src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-shopping-carts/img1.webp"
-                            class="img-fluid rounded-3" alt="Shopping item" style="width: 65px;"> -->
-                                    </div>
-
-                                    <div style="width: 50px;">
-                                        <span class="input-group-text bg-white d-block"
-                                            style="background-color:rgb(247, 247, 247)!important">{{ value.quantity
-                                            }}</span>
-                                    </div>
-                                    <div class="ms-3">
-                                        <p class="m-0">{{ value.title }}</p>
-                                    </div>
-                                </div>
-                                <div class="d-flex flex-row align-items-center">
-
-
-                                    <div style="width: 80px;">
-                                        <p class="mb-0">{{ totalProductPrice(value.price, value.quantity) }}€</p>
-                                    </div>
-                                    <div @click="basketStore.removerItem(key)" style="color: #cecece;" class="text-danger">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+          <!-- products -->
+          <div class="mt-4" style="">
+              <!--  -->
+              <SingleOrderCart  v-for=" ([key, value]) in Object.entries(basketOrders)" :value="value" :key="key" :orderID="key" :clickHandlerItem="null" :removerItem="null" />
+          </div>
+          <!--end of products -->
 
                 </div>
                 <!-- payment-->
@@ -131,7 +153,7 @@ onBeforeMount(()=>{
 
                         <div class="row g-3">
 
-                            <div class="col-md-6">
+                            <div class="col">
 
                                 <span>Μέθοδος πληρωμής</span>
                                 <div class="card">

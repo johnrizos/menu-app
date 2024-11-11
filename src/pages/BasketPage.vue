@@ -15,7 +15,6 @@ const {textPriceToNumber, calculateNumberPriceAndQuantity, totalProductPrice,pri
 console.log("productWithGroupOfExtra", productWithGroupOfExtra(1));
 // get the basket from localstorage
 const basketStore = useBasketStore();
-const productOrderId = "1730724458135-4292";
 // console.log("basketStore", basketStore.basket);
 const basketOrders = reactive({});
 
