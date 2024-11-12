@@ -1,5 +1,5 @@
 <script setup>
-import { ref,watch,onBeforeMount, reactive } from 'vue';
+import { ref,watch,onBeforeMount, reactive, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useBasketStore } from '../stores/basket';
 import router from '@/router';
@@ -9,6 +9,8 @@ import {productWithGroupOfExtra}  from '@/http/product/product-api.js';
 import SingleOrderCart from '../components/layout/basket-page-components/SingleOrderCart.vue';
 
 import validateCreditCard from '../hooks/payment/creditCard/validateCreditCard.js';
+import { loadStripe } from "@stripe/stripe-js";
+
 
 const proceedToCheckOut = (() => {
     console.log("proceedToCheckOut works");
@@ -87,6 +89,44 @@ cardBrand.value = validateCreditCardResults.cardBrand;
 isCreditCardValid.value = validateCreditCardResults.isCreditCardValid;
 })
 // end of payment form
+
+// stripe bank payment
+const stripe = ref(null);
+    const elements = ref(null);
+    const cardElement = ref(null);
+    const errorMessage = ref("");
+    const stripePromise = loadStripe("pk_test_51QJxckCu0CKeNmiWNwctclirVR5A2tYKFT3eqe3FptOfiJxJd9qNzQYHhTaGE4pceUUbEGuf0Z8ukXZuE8NkiHxq009kkuyeye");
+
+    const redirectToCheckout = async () => {
+      const stripe = await stripePromise;
+    //   turn amount in euros to cents and make it number as is for example 12,00 so need to be 1200
+      const amountInEuros = textPriceToNumber(basketStore.totalPrice);
+
+      const amountInCents = Math.round(amountInEuros * 100);
+
+      try {
+        // Convert amount from Euros to cents
+
+        const response = await fetch("http://127.0.0.1:8000/api/create-checkout-session", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ amount: amountInCents }), // Send amount in cents
+        });
+
+        const session = await response.json();
+
+        if (session.error) {
+          errorMessage.value = session.error;
+        } else {
+          await stripe.redirectToCheckout({ sessionId: session.id });
+        }
+      } catch (error) {
+        errorMessage.value = "An error occurred. Please try again.";
+      }
+    };
+// end of stripe bank payment
 
 
 watch(basketStore, (newValue, oldValue) => {
@@ -219,126 +259,31 @@ onBeforeMount(()=>{
                                                     </div>
                                                     <span v-if="cardBrand">{{ cardBrand }}</span>
                                                     <span v-if="isCreditCardValid != null && isCreditCardValid === false "> - Μη έγκυρος αριθμός πιστωτικής κάρτας.</span>
-
                                                     <div class="row mt-3 mb-3">
-
                                                         <div class="col-md-6">
-
                                                             <span class="font-weight-normal card-text">Expiry Date</span>
                                                             <div class="input">
-
                                                                 <i class="fa fa-calendar"></i>
                                                                 <input type="text" class="form-control" placeholder="MM/YY">
-
                                                             </div>
-
                                                         </div>
-
-
                                                         <div class="col-md-6">
-
                                                             <span class="font-weight-normal card-text">CVC/CVV</span>
                                                             <div class="input">
-
                                                                 <i class="fa fa-lock"></i>
                                                                 <input type="text" class="form-control" placeholder="000">
-
                                                             </div>
-
                                                         </div>
-
-
                                                     </div>
-
                                                     <span class="text-muted certificate-text"><i class="fa fa-lock"></i>
                                                         Your
                                                         transaction is secured with ssl certificate</span>
-
                                                 </div>
                                             </div>
                                         </div>
-
                                     </div>
-
                                 </div>
-
                             </div>
-
-                            <!-- <div class="col-md-6">
-      <span>Summary</span>
-
-      <div class="card">
-
-        <div class="d-flex justify-content-between p-3">
-
-          <div class="d-flex flex-column">
-
-            <span>Pro(Billed Monthly) <i class="fa fa-caret-down"></i></span>
-            <a href="#" class="billing">Save 20% with annual billing</a>
-            
-          </div>
-
-          <div class="mt-1">
-            <sup class="super-price">$9.99</sup>
-            <span class="super-month">/Month</span>
-          </div>
-          
-        </div>
-
-        <hr class="mt-0 line">
-
-        <div class="p-3">
-
-          <div class="d-flex justify-content-between mb-2">
-
-            <span>Refferal Bonouses</span>
-            <span>-$2.00</span>
-            
-          </div>
-
-          <div class="d-flex justify-content-between">
-
-            <span>Vat <i class="fa fa-clock-o"></i></span>
-            <span>-20%</span>
-            
-          </div>
-          
-
-        </div>
-
-        <hr class="mt-0 line">
-
-
-        <div class="p-3 d-flex justify-content-between">
-
-          <div class="d-flex flex-column">
-
-            <span>Today you pay(US Dollars)</span>
-            <small>After 30 days $9.59</small>
-            
-          </div>
-          <span>$0</span>
-
-          
-
-        </div>
-
-
-        <div class="p-3">
-
-        <button class="btn btn-primary btn-block free-button">Try it free for 30 days</button> 
-       <div class="text-center">
-         <a href="#">Have a promo code?</a>
-       </div>
-          
-        </div>
-
-
-
-        
-      </div>
-  </div> -->
-
                         </div>
 
 
@@ -351,7 +296,7 @@ onBeforeMount(()=>{
                     <div class="card w-100 m-auto">
                         <div class="card-body">
                             <div class="d-grid gap-2">
-                                <button @click="proceedToCheckOut" class="btn btn-success fw-bold btn py-2" type="button">
+                                <button @click="redirectToCheckout" class="btn btn-success fw-bold btn py-2" type="button">
                                     <div class="d-flex justify-content-between">
                                         <div><span class="badge bg-white text-dark mx-2">{{
                                             basketStore.totalQuantityOfProducts }}</span>
