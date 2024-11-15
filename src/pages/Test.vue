@@ -92,68 +92,71 @@ export default {
     });
 
     const handleSubmit = async () => {
-  try {
-    const { paymentMethod, error } = await stripe.createPaymentMethod({
-      type: "card",
-      card: cardNumberElement,
-    });
+      errorMessage.value = "";
+      successMessage.value = "";
+      try {
+        const { paymentMethod, error } = await stripe.createPaymentMethod({
+          type: "card",
+          card: cardNumberElement,
+        });
 
-    if (error) {
-      errorMessage.value = error.message;
-    } else {
-      const amountInCents = Math.round(amountInEuros.value * 100);
-
-      // Initial request to create and confirm the PaymentIntent
-      let response = await fetch("http://127.0.0.1:8000/api/process-payment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          paymentMethodId: paymentMethod.id,
-          amount: amountInCents,
-        }),
-      });
-
-      let data = await response.json();
-
-      if (data.success) {
-        successMessage.value = "Payment successful!";
-      } else if (data.requiresAction) {
-        // Handle 3D Secure authentication
-        const { error: confirmError } = await stripe.handleCardAction(data.clientSecret);
-
-        if (confirmError) {
-          errorMessage.value = "3D Secure authentication failed. Please try again.";
+        if (error) {
+          errorMessage.value = error.message;
         } else {
-          // Second request to confirm the PaymentIntent after 3D Secure
-          response = await fetch("http://127.0.0.1:8000/api/process-payment", {
+          const amountInCents = Math.round(amountInEuros.value * 100);
+
+          // Initial request to create and confirm the PaymentIntent
+          let response = await fetch("http://127.0.0.1:8000/api/process-payment", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              paymentIntentId: data.paymentIntentId,
+              paymentMethodId: paymentMethod.id,
               amount: amountInCents,
             }),
           });
 
-          data = await response.json();
+          let data = await response.json();
 
           if (data.success) {
             successMessage.value = "Payment successful!";
+          } else if (data.requiresAction) {
+            // Handle 3D Secure authentication
+            const { error: confirmError } = await stripe.handleCardAction(data.clientSecret);
+
+            if (confirmError) {
+              errorMessage.value = "3D Secure authentication failed. Please try again.";
+            } else {
+              // Second request to confirm the PaymentIntent after 3D Secure
+              response = await fetch("http://127.0.0.1:8000/api/process-payment", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  paymentIntentId: data.paymentIntentId,
+                  amount: amountInCents,
+                }),
+              });
+
+              data = await response.json();
+
+              if (data.success) {
+                successMessage.value = "Η πληρωμή ολοκληρώθηκε επιτυχώς!";
+              } else {
+                errorMessage.value = "Η πληρωμή απέτυχε μετά την 3D Secure. Παρακαλώ προσπαθήστε ξανά.";
+              }
+            }
           } else {
-            errorMessage.value = "Payment failed after 3D Secure. Please try again.";
+            errorMessage.value = "Η πληρωμή απέτυχε. " + data.message;
           }
         }
-      } else {
-        errorMessage.value = "Payment failed. " + data.message;
+      } catch (error) {
+        errorMessage.value = "Παρουσιάστηκε σφάλμα. Παρακαλώ προσπαθήστε ξανά.";
       }
-    }
-  } catch (error) {
-    errorMessage.value = "An error occurred. Please try again.";
-  }
-};
+
+    };
 
 
 

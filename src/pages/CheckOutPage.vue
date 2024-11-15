@@ -1,24 +1,31 @@
 <script setup>
-import { ref,watch,onBeforeMount, reactive, onMounted } from 'vue';
+import { ref, watch, onBeforeMount, reactive, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useBasketStore } from '../stores/basket';
 import router from '@/router';
 import priceHook from '../hooks/price/priceHook.js';
 import goBackOrHome from '../hooks/navigation/goBackOrHome.js';
-import {productWithGroupOfExtra}  from '@/http/product/product-api.js';
+import { productWithGroupOfExtra } from '@/http/product/product-api.js';
 import SingleOrderCart from '../components/layout/basket-page-components/SingleOrderCart.vue';
+import CrediteCartForm from '@/components/layout/check-out-page/CrediteCartForm.vue';
+import {backendURL} from '@/http/api.js';
 
 import validateCreditCard from '../hooks/payment/creditCard/validateCreditCard.js';
 import { loadStripe } from "@stripe/stripe-js";
 
 
-const proceedToCheckOut = (() => {
-    console.log("proceedToCheckOut works");
-    router.push("/checkout");
+// const proceedToCheckOut = (() => {
+//     console.log("proceedToCheckOut works");
+//     router.push("/checkout");
+// });
+
+const returnToHomePage = (() => {
+    console.log("returnToHomePage works");
+    router.push("/");
 });
 
 
-const {textPriceToNumber, calculateNumberPriceAndQuantity, totalProductPrice,priceForExtras} = priceHook();
+const { textPriceToNumber, calculateNumberPriceAndQuantity, totalProductPrice, priceForExtras } = priceHook();
 
 console.log("test", textPriceToNumber("10,23"));
 
@@ -27,127 +34,187 @@ const basketStore = useBasketStore();
 const basketOrders = reactive({});
 
 async function getBasketOrders() {
-//a function which will get the basket orders from localstorage with the use of the basket store and then get the api for each  order and then check if everything workls properly for example the prices and also if exist the extras for each product
-  console.log("getBasketOrders works");
-  const basket = basketStore.basket;
-  const objectOreders = {};
-  console.log("basket", basket);
+    //a function which will get the basket orders from localstorage with the use of the basket store and then get the api for each  order and then check if everything workls properly for example the prices and also if exist the extras for each product
+    console.log("getBasketOrders works");
+    const basket = basketStore.basket;
+    const objectOreders = {};
+    console.log("basket", basket);
 
-  for (const [key, value] of Object.entries(basket)) {
-    console.log("key", key);
-    console.log("value", value);
-    console.log("value id", value.product_id);
-    const product = await productWithGroupOfExtra(value.product_id);
-    console.log("product", product);
-    
-    const productGroupOfExtra = product["product_group_of_extra"] ?? [];
-    console.log("productGroupOfExtra", productGroupOfExtra);
+    for (const [key, value] of Object.entries(basket)) {
+        console.log("key", key);
+        console.log("value", value);
+        console.log("value id", value.product_id);
+        const product = await productWithGroupOfExtra(value.product_id);
+        console.log("product", product);
 
-    console.log("basket.extras", value.extras);
-    
-    const price = totalProductPrice(textPriceToNumber(product.price) + priceForExtras(productGroupOfExtra,value.extras ?? null), value.quantity);
-    console.log("price", price);
-    
-    console.log("product", product);
-    if (product) {
-      const productOrder = {
-        id: product.id,
-        title: product.name,
-        price: price,
-        quantity: value.quantity,
-        extras: product.extras
-      }
-      if (!objectOreders[key]) {
-        objectOreders[key] = [];
-      }
-      objectOreders[key] = productOrder;
+        const productGroupOfExtra = product["product_group_of_extra"] ?? [];
+        console.log("productGroupOfExtra", productGroupOfExtra);
+
+        console.log("basket.extras", value.extras);
+
+        const price = totalProductPrice(textPriceToNumber(product.price) + priceForExtras(productGroupOfExtra, value.extras ?? null), value.quantity);
+        console.log("price", price);
+
+        console.log("product", product);
+        if (product) {
+            const productOrder = {
+                id: product.id,
+                title: product.name,
+                price: price,
+                quantity: value.quantity,
+                extras: product.extras
+            }
+            if (!objectOreders[key]) {
+                objectOreders[key] = [];
+            }
+            objectOreders[key] = productOrder;
+        }
     }
-  }
-  console.log("objectOreders", objectOreders);
-  Object.assign(basketOrders, objectOreders);
+    console.log("objectOreders", objectOreders);
+    Object.assign(basketOrders, objectOreders);
 
-  return;
+    return;
 }
 getBasketOrders();
 
-// payment form
 
-const cardBrand = ref(null);
-const isCreditCardValid = ref(null);
-const  cardNumberRef = ref(null)
-const  cardNumber = ref(null)
-const blurCardNumber = ()=>{
-    cardNumber.value = cardNumberRef.value.value;
-    console.log("cardNumber = ",cardNumber.value);
-}
 
-watch(cardNumber, (newCardNumber, oldCardNumber) => {
-console.log("newCardNumber = ",newCardNumber);
-console.log(validateCreditCard(newCardNumber));
-const validateCreditCardResults =  validateCreditCard(newCardNumber);
-cardBrand.value = validateCreditCardResults.cardBrand;
-isCreditCardValid.value = validateCreditCardResults.isCreditCardValid;
-})
-// end of payment form
+// const amountInEuros = ref(12);
+const errorMessage = ref("");
+const successMessage = ref("");
+const cardBrand = ref("generic"); // Initialize with "generic" for default icon
+let stripe;
+let cardNumberElement, cardExpiryElement, cardCvcElement;
 
-// stripe bank payment
-const stripe = ref(null);
-    const elements = ref(null);
-    const cardElement = ref(null);
-    const errorMessage = ref("");
-    const stripePromise = loadStripe("pk_test_51QJxckCu0CKeNmiWNwctclirVR5A2tYKFT3eqe3FptOfiJxJd9qNzQYHhTaGE4pceUUbEGuf0Z8ukXZuE8NkiHxq009kkuyeye");
+onMounted(async () => {
+    stripe = await loadStripe("pk_test_51QJxckCu0CKeNmiWNwctclirVR5A2tYKFT3eqe3FptOfiJxJd9qNzQYHhTaGE4pceUUbEGuf0Z8ukXZuE8NkiHxq009kkuyeye");
 
-    const redirectToCheckout = async () => {
-      const stripe = await stripePromise;
-    //   turn amount in euros to cents and make it number as is for example 12,00 so need to be 1200
-      const amountInEuros = textPriceToNumber(basketStore.totalPrice);
+    const elements = stripe.elements();
 
-      const amountInCents = Math.round(amountInEuros * 100);
+    const style = {
+        base: {
+            color: "#495057",
+            fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+            fontSize: "16px",
+            "::placeholder": {
+                color: "#6c757d",
+            },
+        },
+        invalid: {
+            color: "#dc3545",
+            iconColor: "#dc3545",
+        },
+    };
 
-      try {
-        // Convert amount from Euros to cents
+    cardNumberElement = elements.create("cardNumber", { style });
+    cardNumberElement.mount("#card-number-element");
+    cardNumberElement.on("change", (event) => {
+        cardBrand.value = event.brand || "generic";
+    });
 
-        const response = await fetch("http://127.0.0.1:8000/api/create-checkout-session", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ amount: amountInCents }), // Send amount in cents
+    cardExpiryElement = elements.create("cardExpiry", { style });
+    cardExpiryElement.mount("#card-expiry-element");
+
+    cardCvcElement = elements.create("cardCvc", { style });
+    cardCvcElement.mount("#card-cvc-element");
+});
+const handleSubmit = async (event) => {
+    event.preventDefault();
+    errorMessage.value = "";
+    successMessage.value = "";
+
+    try {
+        const { paymentMethod, error } = await stripe.createPaymentMethod({
+            type: "card",
+            card: cardNumberElement,
         });
 
-        const session = await response.json();
-
-        if (session.error) {
-          errorMessage.value = session.error;
+        if (error) {
+            errorMessage.value = error.message;
+            console.error("Payment method error:", error);
         } else {
-          await stripe.redirectToCheckout({ sessionId: session.id });
+            const amountInEuros = textPriceToNumber(basketStore.totalPrice)
+            const amountInCents = Math.round(amountInEuros * 100);
+
+            let response = await fetch(`${backendURL}/api/process-payment`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    paymentMethodId: paymentMethod.id,
+                    amount: amountInCents,
+                }),
+            });
+
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+            let data = await response.json();
+
+            if (data.success) {
+                successMessage.value = "Η πληρωμή ολοκληρώθηκε επιτυχώς!";
+                basketStore.removeAllItems();
+                console.log("basketStore removed?", basketStore.basket);
+            } else if (data.requiresAction && data.paymentIntentId) {
+                const { error: confirmError } = await stripe.handleCardAction(data.clientSecret);
+
+                if (confirmError) {
+                    errorMessage.value = "3D Secure authentication failed. Please try again.";
+                } else {
+                    response = await fetch("http://127.0.0.1:8000/api/process-payment", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            paymentIntentId: data.paymentIntentId,
+                            amount: amountInCents,
+                        }),
+                    });
+
+                    data = await response.json();
+
+                    if (data.success) {
+                        successMessage.value = "Η πληρωμή ολοκληρώθηκε επιτυχώς!";
+                        basketStore.removeAllItems();
+                        console.log("basketStore removed?", basketStore.basket);
+
+                    } else {
+                        errorMessage.value = "Η πληρωμή απέτυχε μετά την 3D Secure. Παρακαλώ προσπαθήστε ξανά.";
+                    }
+                }
+            } else {
+                errorMessage.value = "Η πληρωμή απέτυχε. " + (data.message || "Παρακαλώ δοκιμάστε ξανά.");
+            }
         }
-      } catch (error) {
-        errorMessage.value = "An error occurred. Please try again.";
-      }
-    };
+    } catch (error) {
+        console.error("Error during payment process:", error);
+        errorMessage.value = "Παρουσιάστηκε σφάλμα. Παρακαλώ προσπαθήστε ξανά.";
+    }
+};
 // end of stripe bank payment
 
 
-watch(basketStore, (newValue, oldValue) => {
-  console.log("newValue totalQuantityOfProducts", newValue.totalQuantityOfProducts);
-  if (newValue.totalQuantityOfProducts === 0) {
-   goBackOrHome();
-  }
-})
+// watch(basketStore, (newValue, oldValue) => {
+//     console.log("newValue totalQuantityOfProducts", newValue.totalQuantityOfProducts);
+//     if (newValue.totalQuantityOfProducts === 0) {
+//         goBackOrHome();
+//     }
+// })
 
 
 
 
 
 
-onBeforeMount(()=>{
-  if(!basketStore.totalQuantityOfProducts || basketStore.totalQuantityOfProducts === 0){
-   goBackOrHome();
-  }
+onBeforeMount(() => {
+    if (!basketStore.totalQuantityOfProducts || basketStore.totalQuantityOfProducts === 0) {
+        goBackOrHome();
+    }
 })
 
 </script>
+
 <template>
     <section class="" style="background-color: #eee;">
         <div class="container p-0 m-0  p-sm-0  position-relative m-auto h-100">
@@ -166,129 +233,93 @@ onBeforeMount(()=>{
                             </div>
                         </div>
                     </div>
-          <!-- products -->
-          <div class="mt-4" style="">
-              <!--  -->
-              <SingleOrderCart  v-for=" ([key, value]) in Object.entries(basketOrders)" :value="value" :key="key" :orderID="key" :clickHandlerItem="null" :removerItem="null" />
-          </div>
-          <!--end of products -->
+                    <!-- products -->
+                    <div v-if="!successMessage" class="mt-4" style="">
+                        <!--  -->
+                        <SingleOrderCart v-for=" ([key, value]) in Object.entries(basketOrders)" :value="value"
+                            :key="key" :orderID="key" :clickHandlerItem="null" :removerItem="null" />
+                    </div>
+                    <!--end of products -->
 
                 </div>
                 <!-- payment-->
                 <section v-if="basketStore.totalQuantityOfProducts > 0">
 
 
-                    <form class="card p-2">
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Promo code">
-                            <button type="submit" class="btn btn-secondary">Redeem</button>
-                        </div>
-                    </form>
+                    <div class="  justify-content-center mt-1 mb-5">
 
 
 
-                    <div class="container d-flex justify-content-center mt-5 mb-5">
+                        <div class="row g-3 m-0 p-1">
 
+                            <div class="col m-0">
 
-
-                        <div class="row g-3">
-
-                            <div class="col">
-
-                                <span>Μέθοδος πληρωμής</span>
-                                <div class="card">
-
-                                    <div class="accordion" id="accordionExample">
-
-                                        <div class="card">
-                                            <div class="card-header p-0" id="headingTwo">
-                                                <h2 class="mb-0">
-                                                    <button
-                                                        class="btn btn-light btn-block text-left collapsed p-3 rounded-0 border-bottom-custom"
-                                                        type="button" data-toggle="collapse" data-target="#collapseTwo"
-                                                        aria-expanded="false" aria-controls="collapseTwo">
-                                                        <div class="d-flex align-items-center justify-content-between">
-
-                                                            <span>Paypal</span>
-                                                            <img src="https://i.imgur.com/7kQEsHU.png" width="30">
-
-                                                        </div>
-                                                    </button>
-                                                </h2>
+                                <!-- <span>Μέθοδος πληρωμής</span> -->
+                                <div class="card p-3">
+                                    <h3 v-if="!successMessage" class="mb-4">Enter Payment Details</h3>
+                                    <form v-if="!successMessage" @submit.prevent="handleSubmit">
+                                        <div class="mb-3">
+                                            <label class="form-label">Card Number</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i v-if="cardBrand === 'visa'" class="fab fa-cc-visa"></i>
+                                                    <i v-else-if="cardBrand === 'mastercard'"
+                                                        class="fab fa-cc-mastercard"></i>
+                                                    <i v-else-if="cardBrand === 'amex'" class="fab fa-cc-amex"></i>
+                                                    <i v-else-if="cardBrand === 'discover'"
+                                                        class="fab fa-cc-discover"></i>
+                                                    <i v-else class="fas fa-credit-card"></i>
+                                                </span>
+                                                <div id="card-number-element" class="form-control stripe-element"></div>
                                             </div>
-                                            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo"
-                                                data-parent="#accordionExample">
-                                                <div class="card-body">
-                                                    <input type="text" class="form-control" placeholder="Paypal email">
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Expiration Date</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text"><i
+                                                            class="fas fa-calendar-alt"></i></span>
+                                                    <div id="card-expiry-element" class="form-control stripe-element">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">CVC</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                                    <div id="card-cvc-element" class="form-control stripe-element">
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div class="card">
-                                            <div class="card-header p-0">
-                                                <h2 class="mb-0">
-                                                    <button class="btn btn-light btn-block text-left p-3 rounded-0"
-                                                        data-toggle="collapse" data-target="#collapseOne"
-                                                        aria-expanded="true" aria-controls="collapseOne">
-                                                        <div class="d-flex align-items-center justify-content-between">
+                                        <!-- <button type="submit" class="btn btn-primary w-100">Pay €{{ amountInEuros }}</button> -->
+                                    </form>
 
-                                                            <span>Credit card</span>
-                                                            <div class="icons">
-                                                                <img src="https://i.imgur.com/2ISgYja.png" width="30">
-                                                                <img src="https://i.imgur.com/W1vtnOV.png" width="30">
-                                                                <img src="https://i.imgur.com/35tC99g.png" width="30">
-                                                                <img src="https://i.imgur.com/2ISgYja.png" width="30">
-                                                            </div>
-
-                                                        </div>
-                                                    </button>
-                                                </h2>
-                                            </div>
-
-                                            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
-                                                data-parent="#accordionExample">
-                                                <div class="card-body payment-card-body">
-
-                                                    <span  class="font-weight-normal card-text">Card Number</span>
-                                                    <div class="input">
-
-                                                        <i class="fa fa-credit-card"></i>
-                                                        <input @blur="blurCardNumber" ref="cardNumberRef" type="text" class="form-control"
-                                                            placeholder="0000 0000 0000 0000">
-
-                                                    </div>
-                                                    <span v-if="cardBrand">{{ cardBrand }}</span>
-                                                    <span v-if="isCreditCardValid != null && isCreditCardValid === false "> - Μη έγκυρος αριθμός πιστωτικής κάρτας.</span>
-                                                    <div class="row mt-3 mb-3">
-                                                        <div class="col-md-6">
-                                                            <span class="font-weight-normal card-text">Expiry Date</span>
-                                                            <div class="input">
-                                                                <i class="fa fa-calendar"></i>
-                                                                <input type="text" class="form-control" placeholder="MM/YY">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <span class="font-weight-normal card-text">CVC/CVV</span>
-                                                            <div class="input">
-                                                                <i class="fa fa-lock"></i>
-                                                                <input type="text" class="form-control" placeholder="000">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <span class="text-muted certificate-text"><i class="fa fa-lock"></i>
-                                                        Your
-                                                        transaction is secured with ssl certificate</span>
-                                                </div>
-                                            </div>
+                                    <!-- if the payment is success -->
+                                        <div v-if="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}
                                         </div>
-                                    </div>
-                                </div>
+                                        <div v-if="successMessage" class="alert alert-success mt-3">{{ successMessage }}
+                                        </div>
+                                        </div>
                             </div>
                         </div>
 
 
                     </div>
                 </section>
+                                     <!-- if the payment is success -->
+                                     <div v-if="successMessage" class="p-2">
+
+                                        <div class="alert alert-success mt-3">{{ successMessage }}
+                                        </div>
+                                        <!-- div to return to home page cta -->
+                                        <div> <button class="btn btn-primary"
+                                                @click="returnToHomePage">Επιστροφή στην αρχική σελίδα</button></div>
+                                    </div>
+                                    <!-- end if the payment is success -->
                 <!-- end of payment -->
                 <!-- footer  -->
                 <div v-if="basketStore.totalQuantityOfProducts > 0"
@@ -296,7 +327,8 @@ onBeforeMount(()=>{
                     <div class="card w-100 m-auto">
                         <div class="card-body">
                             <div class="d-grid gap-2">
-                                <button @click="redirectToCheckout" class="btn btn-success fw-bold btn py-2" type="button">
+                                <button v-if="!successMessage" @click="handleSubmit"
+                                    class="btn btn-success fw-bold btn py-2" type="button">
                                     <div class="d-flex justify-content-between">
                                         <div><span class="badge bg-white text-dark mx-2">{{
                                             basketStore.totalQuantityOfProducts }}</span>
@@ -316,10 +348,10 @@ onBeforeMount(()=>{
 </template>
 
 
-<style  scoped>
+<style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Poppins:weight@100;200;300;400;500;600;700;800&display=swap");
 
-.h-custom {
+/* .h-custom {
     min-height: calc(100vh - 40px);
 }
 
@@ -327,7 +359,7 @@ onBeforeMount(()=>{
     .h-custom {
         min-height: calc(100vh - 40px);
     }
-}
+} */
 
 .checkout-cta {
     max-width: 450px;
@@ -452,4 +484,5 @@ body {
     flex: 1 1 auto;
     padding: 24px 1rem !important;
 
-}</style>
+}
+</style>

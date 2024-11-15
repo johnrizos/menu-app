@@ -26,6 +26,12 @@ export const useBasketStore = defineStore("basket", () => {
     localStorage.setItem("basket", JSON.stringify(basket.value));
   };
 
+  //  remove all items from the basket
+  const removeAllItems = () => {
+    basket.value = {};
+    localStorage.setItem("basket", JSON.stringify(basket.value));
+  };
+
   const totalQuantityOfProducts = computed(() => {
     let totalQuantity = 0;
     const currentBasket = basket.value;
@@ -114,5 +120,5 @@ export const useBasketStore = defineStore("basket", () => {
   };
 
 
-  return { basket, addOrder, totalPrice, totalQuantityOfProducts, removerItem, getProductById,getProductIdFromOrderId,updateTheOrder };
+  return { basket, addOrder, totalPrice, totalQuantityOfProducts, removerItem, getProductById,getProductIdFromOrderId,updateTheOrder,removeAllItems };
 });
