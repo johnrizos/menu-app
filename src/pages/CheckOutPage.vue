@@ -161,7 +161,7 @@ const handleSubmit = async (event) => {
                 if (confirmError) {
                     errorMessage.value = "3D Secure authentication failed. Please try again.";
                 } else {
-                    response = await fetch("http://127.0.0.1:8000/api/process-payment", {
+                    response = await fetch(`${backendURL}/api/process-payment`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
