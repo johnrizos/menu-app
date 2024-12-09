@@ -3,7 +3,7 @@ import api from '../api';
 
 const allProductCategories = (productCategoryId) => {
 
-    const resource = `pages/${productCategoryId}/product_categories`;
+    const resource = `pages/${productCategoryId}/details`;
     return api.get(resource)
 }
 

@@ -103,7 +103,8 @@ onMounted(async ()=>{
 console.log("Category ID:", categoryId.value);
     const { data } = await allProductCategories(categoryId.value);
     console.log("data", data);
-    pageProductsAndCategories.value = data.data[0];
+    // pageProductsAndCategories.value = data.data[0];
+    pageProductsAndCategories.value = data.data;
     
     // console.log("pageProductsAndCategories", pageProductsAndCategories.value);
 
